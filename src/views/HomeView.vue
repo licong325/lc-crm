@@ -1,9 +1,9 @@
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+const testText = ref('test111111111111111111111111111111')
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    <div>{{ testText }}</div>
   </main>
 </template>
