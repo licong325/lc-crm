@@ -1,117 +1,166 @@
+/* 从 Node.js URL 模块导入文件 URL 转换相关的工具函数 */
 import { fileURLToPath, URL } from 'node:url'
+/* 导入 Vite 的核心配置函数和环境变量加载函数 */
 import { defineConfig, loadEnv } from 'vite'
+/* 导入 Vue 插件，用于处理 .vue 文件 */
 import vue from '@vitejs/plugin-vue'
+/* 导入 Vue 开发者工具插件，提供更好的开发体验 */
 import vueDevTools from 'vite-plugin-vue-devtools'
+/* 导入自动导入 API 的插件 */
 import AutoImport from 'unplugin-auto-import/vite'
+/* 导入自动导入组件的插件 */
 import Components from 'unplugin-vue-components/vite'
+/* 导入 Element Plus 组件库的解析器 */
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+/* 导入旧浏览器兼容性插件 */
 import legacy from '@vitejs/plugin-legacy'
+/* 导入文件压缩插件 */
 import compression from 'vite-plugin-compression'
 
 // https://vite.dev/config/
+/* Vite 配置文件的主体，接收命令和模式参数 */
 export default defineConfig(({ command, mode }) => {
-  // 根据当前工作目录中的 `mode` 加载 .env 文件
-  // 设置第三个参数为 '' 来加载所有环境变量，而不管是否有 `VITE_` 前缀
+  /* 加载环境变量，第三个参数为空字符串表示加载所有环境变量 */
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
     // 插件配置
     plugins: [
+      /* 启用 Vue 支持 */
       vue(),
+      /* 启用 Vue 开发者工具 */
       vueDevTools(),
-      // 自动导入 Vue 相关 API
+      /* 配置 API 自动导入 */
       AutoImport({
+        /* 自动导入这些库的 API */
         imports: ['vue', 'vue-router', 'pinia'],
+        /* 使用 Element Plus 解析器 */
         resolvers: [ElementPlusResolver()],
+        /* 生成类型声明文件的位置 */
         dts: 'src/auto-imports.d.ts',
       }),
-      // 自动导入组件
+      /* 自动导入组件 */
       Components({
+        /* 使用 Element Plus 解析器 */
         resolvers: [ElementPlusResolver()],
+        /* 生成组件类型声明文件的位置 */
         dts: 'src/components.d.ts',
       }),
-      // 兼容旧浏览器
+      /* 兼容旧浏览器 */
       legacy({
         targets: ['defaults', 'not IE 11'],
       }),
-      // 生产环境启用 gzip 压缩
+      /* 生产环境启用 gzip 压缩 */
       compression({
+        /* 启用详细日志 */
         verbose: true,
+        /* 禁用压缩 */
         disable: false,
+        /* 压缩阈值 */
         threshold: 10240,
+        /* 压缩算法 */
         algorithm: 'gzip',
+        /* 压缩文件扩展名 */
         ext: '.gz',
       }),
     ],
 
-    // 解析配置
+    /* 路径解析配置 */
     resolve: {
+      /* 配置路径别名，方便模块导入 */
       alias: {
+        /* @ 指向 src 根目录 */
         '@': fileURLToPath(new URL('./src', import.meta.url)),
+        /* @assets 指向资源目录 */
         '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
+        /* @components 指向组件目录 */
         '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
+        /* @views 指向页面视图目录 */
         '@views': fileURLToPath(new URL('./src/views', import.meta.url)),
+        /* @store 指向状态管理目录 */
         '@store': fileURLToPath(new URL('./src/store', import.meta.url)),
       },
+      /* 导入时可以省略的文件扩展名 */
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
     },
 
-    // 开发服务器配置
+    /* 开发服务器配置 */
     server: {
+      /* 服务启动时自动打开浏览器 */
       open: true,
+      /* 监听所有网络地址 */
       host: '0.0.0.0',
+      /* 开发服务器端口号 */
       port: 8080,
+      /* 启用 CORS 跨域支持 */
       cors: true,
-      // 代理配置
+      /* API 代理配置 */
       proxy: {
         '/api': {
+          /* 代理目标地址 */
           target: env.VITE_API_URL || 'http://localhost:3000',
+          /* 允许跨域 */
           changeOrigin: true,
+          /* 重写请求路径 */
           rewrite: (path) => path.replace(/^\/api/, ''),
         },
       },
     },
 
-    // 构建配置
+    /* 构建配置 */
     build: {
+      /* 构建输出目录 */
       outDir: 'dist',
+      /* 静态资源输出目录 */
       assetsDir: 'assets',
-      assetsInlineLimit: 4096, // 小于此阈值的导入或引用资源将内联为 base64 编码
+      /* 小于 4KB 的资源将被转换为 base64 */
+      assetsInlineLimit: 4096,
+      /* 启用 CSS 代码分割 */
       cssCodeSplit: true,
-      sourcemap: false, // 生产环境关闭 sourcemap
-      // 分块策略
+      /* 生产环境禁用 sourcemap */
+      sourcemap: false,
+      /* Rollup 打包配置 */
       rollupOptions: {
         output: {
+          /* 代码分块输出的文件名格式 */
           chunkFileNames: 'assets/js/[name]-[hash].js',
+          /* 入口文件输出格式 */
           entryFileNames: 'assets/js/[name]-[hash].js',
+          /* 静态资源输出格式 */
           assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
-          // 手动拆分代码块
+          /* 手动代码分块策略 */
           manualChunks: {
+            /* Vue 相关库打包在一起 */
             vue: ['vue', 'vue-router', 'pinia'],
+            /* Element Plus 单独打包 */
             elementPlus: ['element-plus'],
           },
         },
       },
-      // 启用/禁用 brotli 压缩大小报告
+      /* 禁用 brotli 压缩报告 */
       brotliSize: false,
-      // chunk 大小警告的限制
+      /* 代码分块大小警告阈值（KB） */
       chunkSizeWarningLimit: 2000,
-      // 启用/禁用 gzip 压缩大小报告
+      /* 禁用 gzip 压缩报告 */
       reportCompressedSize: false,
     },
 
-    // CSS 相关配置
+    /* CSS 相关配置 */
     css: {
+      /* 预处理器配置 */
       preprocessorOptions: {
         scss: {
+          /* 全局引入 SCSS 变量文件 */
           additionalData: '@import "@/assets/styles/variables.scss";',
         },
       },
+      /* 开发环境启用 CSS sourcemap */
       devSourcemap: true,
     },
 
-    // 性能优化
+    /* 依赖优化配置 */
     optimizeDeps: {
+      /* 预构建的依赖项 */
       include: ['vue', 'vue-router', 'pinia', 'axios'],
     },
   }
