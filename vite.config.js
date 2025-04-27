@@ -150,8 +150,10 @@ export default defineConfig(({ command, mode }) => {
       /* 预处理器配置 */
       preprocessorOptions: {
         scss: {
-          /* 全局引入 SCSS 变量文件 */
-          additionalData: '@import "@/assets/styles/variables.scss";',
+          /* 使用 @use 替代 @import */
+          additionalData: `
+            @use "@/assets/styles/variables.scss" as *;
+          `,
         },
       },
       /* 开发环境启用 CSS sourcemap */
