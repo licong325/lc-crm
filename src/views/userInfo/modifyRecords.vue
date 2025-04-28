@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <h1>首页</h1>
+    <h1>修改记录</h1>
   </div>
 </template>
 
