@@ -16,6 +16,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import legacy from '@vitejs/plugin-legacy'
 /* 导入文件压缩插件 */
 import compression from 'vite-plugin-compression'
+import postcsspxtoviewport from 'postcss-px-to-viewport'
 
 // https://vite.dev/config/
 /* Vite 配置文件的主体，接收命令和模式参数 */
@@ -152,12 +153,33 @@ export default defineConfig(({ command, mode }) => {
         scss: {
           /* 使用 @use 替代 @import */
           additionalData: `
-            @use "@/assets/styles/variables.scss" as *;
+            @use "@/styles/variables.scss" as *;
           `,
         },
       },
       /* 开发环境启用 CSS sourcemap */
       devSourcemap: true,
+      postcss: {
+        plugins: [
+          postcsspxtoviewport({
+            unitToConvert: 'px',
+            viewportWidth: 1920,
+            unitPrecision: 5,
+            propList: ['*'],
+            viewportUnit: 'vw',
+            fontViewportUnit: 'vw',
+            selectorBlackList: [],
+            minPixelValue: 1,
+            mediaQuery: false,
+            replace: true,
+            exclude: [/node_modules/],
+            include: undefined,
+            landscape: false,
+            landscapeUnit: 'vw',
+            landscapeWidth: 1920,
+          }),
+        ],
+      },
     },
 
     /* 依赖优化配置 */
