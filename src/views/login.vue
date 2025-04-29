@@ -1,17 +1,32 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { User, Lock } from '@element-plus/icons-vue'
+<script setup>
+import { useUserStore } from '@/stores/user.js'
 
 const router = useRouter()
-const loginForm = ref({
-  username: '',
-  password: '',
+const userStore = useUserStore()
+
+const loginForm = reactive({
+  username: 'admin',
+  password: '123456',
 })
 
-const handleLogin = () => {
-  // 这里添加登录逻辑
-  router.push('/')
+const loading = ref(false)
+
+const handleLogin = async () => {
+  if (!loginForm.username || !loginForm.password) {
+    ElMessage.warning('请输入用户名和密码')
+    return
+  }
+
+  loading.value = true
+  try {
+    await userStore.login(loginForm.username, loginForm.password)
+    ElMessage.success('登录成功')
+    router.push('/')
+  } catch (error) {
+    ElMessage.error(error.message || '登录失败')
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -32,22 +47,33 @@ const handleLogin = () => {
       </div>
       <el-form :model="loginForm" class="login-form">
         <el-form-item>
-          <el-input v-model="loginForm.username" :prefix-icon="User" size="large" />
+          <el-input
+            v-model="loginForm.username"
+            placeholder="请输入用户名"
+            :prefix-icon="User"
+            size="large" />
         </el-form-item>
         <el-form-item>
           <el-input
             v-model="loginForm.password"
             type="password"
+            placeholder="请输入密码"
             :prefix-icon="Lock"
             size="large"
-            show-password />
+            show-password
+            @keyup.enter="handleLogin" />
         </el-form-item>
         <div class="form-footer">
           <el-checkbox>记住我</el-checkbox>
           <el-link type="primary">忘记密码？</el-link>
         </div>
-        <el-button type="primary" size="large" @click="handleLogin" class="login-button">
-          登录
+        <el-button
+          type="primary"
+          size="large"
+          :loading="loading"
+          @click="handleLogin"
+          class="login-button">
+          {{ loading ? '登录中...' : '登录' }}
         </el-button>
       </el-form>
       <div class="login-footer">

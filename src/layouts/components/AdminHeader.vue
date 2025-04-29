@@ -1,11 +1,20 @@
 <script setup>
+import { useUserStore } from '@/stores/user.js'
+
 defineEmits(['toggle-drawer'])
 
 const router = useRouter()
+const userStore = useUserStore()
 
 const handleLogout = () => {
-  // 这里添加退出登录逻辑
-  router.push('/login')
+  ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    userStore.logout()
+    router.push('/login')
+  })
 }
 </script>
 
@@ -17,7 +26,10 @@ const handleLogout = () => {
     <div class="header-title">后台管理系统</div>
     <div class="header-right">
       <el-dropdown>
-        <el-avatar :size="32" icon="UserFilled" />
+        <div class="user-info">
+          <span class="username">{{ userStore.userInfo.username }}</span>
+          <el-avatar :size="32" icon="UserFilled" />
+        </div>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item>个人信息</el-dropdown-item>
@@ -49,6 +61,18 @@ const handleLogout = () => {
 
   .header-right {
     margin-left: auto;
+  }
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  .username {
+    margin-right: 8px;
+    font-size: 14px;
+    color: $text-regular;
   }
 }
 </style>
