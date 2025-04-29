@@ -1,8 +1,22 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { userApi } from '@/api/test.js'
+const router = useRouter()
+const testApi = () => {
+  userApi.login({ username: 'admin', password: '123456' })
+}
+
+const test403 = () => {
+  router.push('/403')
+}
+</script>
 
 <template>
   <div class="home">
     <h1>欢迎使用Azal Admin 系统</h1>
+    <!-- 接口测试 -->
+    <el-button @click="testApi">测试接口</el-button>
+    <!-- 测试403 -->
+    <el-button @click="test403">测试403</el-button>
   </div>
 </template>
 

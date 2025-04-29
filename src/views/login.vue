@@ -3,7 +3,6 @@ import { useUserStore } from '@/stores/user.js'
 import { User, Lock } from '@element-plus/icons-vue'
 const router = useRouter()
 const userStore = useUserStore()
-
 const loginForm = reactive({
   username: 'admin',
   password: '123456',

@@ -1,0 +1,128 @@
+import axios from 'axios'
+import { useUserStore } from '@/stores/user.js'
+
+// 环境配置
+const ENV_CONFIG = {
+  test: 'https://test-crm.azallivegroup.com/',
+  grey: 'https://grey-crm.azallivegroup.com/',
+  master: 'https://crm.azallivegroup.com/',
+}
+
+// 获取当前环境
+const getBaseUrl = () => {
+  const env = import.meta.env.VITE_APP_ENV || 'master'
+  return ENV_CONFIG[env]
+}
+
+// 创建 axios 实例
+const service = axios.create({
+  baseURL: getBaseUrl(),
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json;charset=utf-8',
+  },
+})
+
+// 请求拦截器
+service.interceptors.request.use(
+  (config) => {
+    const userStore = useUserStore()
+    // 如果有token则添加到请求头
+    if (userStore.token) {
+      config.headers['Authorization'] = `Bearer ${userStore.token}`
+    }
+    return config
+  },
+  (error) => {
+    console.error('请求错误：', error)
+    return Promise.reject(error)
+  }
+)
+
+// 响应拦截器
+service.interceptors.response.use(
+  (response) => {
+    const { code, data, message } = response.data
+
+    // 根据自定义错误码判断请求是否成功
+    if (code === 200) {
+      // 将组件中处理的数据返回
+      return data
+    }
+
+    // 处理错误
+    ElMessage.error(message || '系统错误')
+    return Promise.reject(new Error(message || '系统错误'))
+  },
+  (error) => {
+    // 处理 HTTP 网络错误
+    let message = ''
+    // HTTP 状态码
+    const status = error.response?.status
+    switch (status) {
+      case 401:
+        message = '未登录'
+        // 这里可以处理未登录或token过期的情况
+        const userStore = useUserStore()
+        userStore.logout()
+        router.push('/login')
+        break
+      case 403:
+        message = '没有权限'
+        router.push('/403')
+        break
+      case 404:
+        message = '请求地址错误'
+        break
+      case 500:
+        message = '服务器故障'
+        break
+      default:
+        message = '网络连接故障'
+    }
+
+    ElMessage.error(message)
+    return Promise.reject(error)
+  }
+)
+
+/**
+ * 封装 GET 请求
+ * @param {string} url 请求地址
+ * @param {Object} params 请求参数
+ * @returns {Promise} 返回 Promise 对象
+ */
+export function get(url, params) {
+  return service.get(url, { params })
+}
+
+/**
+ * 封装 POST 请求
+ * @param {string} url 请求地址
+ * @param {Object} data 请求参数
+ * @returns {Promise} 返回 Promise 对象
+ */
+export function post(url, data) {
+  return service.post(url, data)
+}
+
+/**
+ * 封装 PUT 请求
+ * @param {string} url 请求地址
+ * @param {Object} data 请求参数
+ * @returns {Promise} 返回 Promise 对象
+ */
+export function put(url, data) {
+  return service.put(url, data)
+}
+
+/**
+ * 封装 DELETE 请求
+ * @param {string} url 请求地址
+ * @returns {Promise} 返回 Promise 对象
+ */
+export function del(url) {
+  return service.delete(url)
+}
+
+export default service

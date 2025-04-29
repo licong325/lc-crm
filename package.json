@@ -4,13 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --mode development",
+    "dev:grey": "vite --mode staging",
+    "dev:master": "vite --mode production",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "build:test": "vite build --mode development",
+    "build:grey": "vite build --mode staging",
+    "build:master": "vite build --mode production"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
+    "axios": "^1.9.0",
     "element-plus": "^2.9.8",
     "pinia": "^3.0.1",
     "sass": "^1.87.0",

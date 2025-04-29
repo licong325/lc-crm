@@ -16,6 +16,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/403',
+      name: '403',
+      component: () => import('@/views/403.vue'),
+      meta: {
+        title: '403',
+        hidden: true,
+      },
+    },
+    {
       path: '/',
       component: AdminLayout,
       children: [

@@ -1,7 +1,7 @@
 import { useUserStore } from '@/stores/user.js'
 
 // 白名单路由
-const whiteList = ['/login']
+const whiteList = ['/login', '/403']
 
 export function setupRouterGuard(router) {
   router.beforeEach((to, from, next) => {
