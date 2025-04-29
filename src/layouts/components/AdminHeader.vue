@@ -20,10 +20,10 @@ const handleLogout = () => {
 
 <template>
   <header class="header">
-    <el-button type="primary" @click="$emit('toggle-drawer')">
+    <el-button size="mini" @click="$emit('toggle-drawer')">
       <el-icon><Menu /></el-icon>
     </el-button>
-    <div class="header-title">后台管理系统</div>
+    <div class="header-title">Azal Admin</div>
     <div class="header-right">
       <el-dropdown>
         <div class="user-info">
@@ -43,8 +43,10 @@ const handleLogout = () => {
 
 <style lang="scss" scoped>
 .header {
+  width: 100%;
   height: $header-height;
-  padding: 0 20px;
+  margin-top: 1vh;
+  padding: 20px;
   background-color: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -54,7 +56,7 @@ const handleLogout = () => {
 
   .header-title {
     margin-left: 20px;
-    font-size: 18px;
+    font-size: 28px;
     font-weight: bold;
     color: $text-primary;
   }
@@ -71,7 +73,7 @@ const handleLogout = () => {
 
   .username {
     margin-right: 8px;
-    font-size: 14px;
+    font-size: 24px;
     color: $text-regular;
   }
 }

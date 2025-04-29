@@ -93,6 +93,8 @@ export default defineConfig(({ command, mode }) => {
       host: '0.0.0.0',
       /* 开发服务器端口号 */
       port: 8080,
+      /* sourcemap 配置 */
+      sourcemap: true,
       /* 启用 CORS 跨域支持 */
       cors: true,
       /* API 代理配置 */

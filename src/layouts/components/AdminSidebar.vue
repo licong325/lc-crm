@@ -41,8 +41,7 @@ const handleSelect = (index) => {
     :model-value="visible"
     @update:model-value="emit('update:visible', $event)"
     title="导航菜单"
-    direction="ltr"
-    size="240">
+    direction="ltr">
     <el-menu class="drawer-menu" :default-active="route.path" @select="handleSelect">
       <template v-for="item in menuItems" :key="item.path">
         <!-- 没有子菜单的情况 -->
@@ -73,8 +72,8 @@ const handleSelect = (index) => {
 
 <style lang="scss" scoped>
 .drawer-menu {
+  width: 100%;
   border-right: none;
-  width: $drawer-width;
 }
 
 :deep(.el-drawer__header) {
