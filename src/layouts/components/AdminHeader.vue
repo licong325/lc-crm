@@ -20,7 +20,7 @@ const handleLogout = () => {
 
 <template>
   <header class="header">
-    <el-button size="mini" @click="$emit('toggle-drawer')">
+    <el-button size="small" @click="$emit('toggle-drawer')">
       <el-icon><Menu /></el-icon>
     </el-button>
     <div class="header-title">Azal Admin</div>
