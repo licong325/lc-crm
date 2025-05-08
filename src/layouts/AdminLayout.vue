@@ -10,18 +10,16 @@ const drawerVisible = ref(false)
 <template>
   <div class="admin-layout">
     <el-container>
-      <el-container>
-        <el-header>
-          <!-- 顶部导航栏 -->
-          <AdminHeader @toggle-drawer="drawerVisible = !drawerVisible" />
-        </el-header>
-        <el-main>
-          <!-- 侧边导航抽屉 -->
-          <AdminSidebar v-model:visible="drawerVisible" />
-          <!-- 主要内容区域 -->
-          <AdminMain />
-        </el-main>
-      </el-container>
+      <el-header>
+        <!-- 顶部导航栏 -->
+        <AdminHeader @toggle-drawer="drawerVisible = !drawerVisible" />
+      </el-header>
+      <el-main>
+        <!-- 侧边导航抽屉 -->
+        <AdminSidebar v-model:visible="drawerVisible" />
+        <!-- 主要内容区域 -->
+        <AdminMain />
+      </el-main>
     </el-container>
   </div>
 </template>

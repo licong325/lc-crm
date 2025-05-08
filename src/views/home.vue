@@ -8,6 +8,9 @@ const testApi = () => {
 const test403 = () => {
   router.push('/403')
 }
+const test404 = () => {
+  router.push('/404')
+}
 </script>
 
 <template>
@@ -17,6 +20,8 @@ const test403 = () => {
     <el-button @click="testApi">测试接口</el-button>
     <!-- 测试403 -->
     <el-button @click="test403">测试403</el-button>
+    <!-- 测试404 -->
+    <el-button @click="test404">测试404</el-button>
   </div>
 </template>
 
