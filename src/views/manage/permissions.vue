@@ -1,100 +1,105 @@
 <script setup>
 import { UserRoleEnum, getRoleLabel, getRoleOptions } from '@/utils/roleEnum.js'
-import { ref, computed } from 'vue'
-
-const roleOptions = ref(getRoleOptions())
+import { asyncRoutes } from '@/router'
+// 角色列表
+const roleOptions = ref([])
+// 编辑弹窗
 const dialogVisible = ref(false)
+// 当前角色
 const currentRole = ref(null)
-
+// 菜单树
+const menuTree = ref(null)
 // 当前角色的权限
 const checkedPermissions = ref([])
 
-// 菜单权限数据
-const menuPermissions = ref([
-  {
-    id: 1,
-    label: '其他',
-    children: [
-      { id: 11, label: '其他1' },
-      { id: 12, label: '其他2' },
-    ],
-  },
-  {
-    id: 2,
-    label: '操作',
-    children: [
-      { id: 21, label: '操作1' },
-      { id: 22, label: '操作2' },
-    ],
-  },
-  {
-    id: 3,
-    label: '模板',
-    children: [
-      { id: 31, label: '模板1' },
-      { id: 32, label: '模板2' },
-    ],
-  },
-  {
-    id: 4,
-    label: '配置',
-    children: [
-      { id: 41, label: '配置1' },
-      { id: 42, label: '配置2' },
-    ],
-  },
-  {
-    id: 5,
-    label: '单栏',
-    children: [
-      { id: 51, label: '单栏1' },
-      { id: 52, label: '单栏2' },
-    ],
-  },
-  {
-    id: 6,
-    label: '商品',
-    children: [
-      { id: 61, label: '商品1' },
-      { id: 62, label: '商品2' },
-    ],
-  },
-  {
-    id: 7,
-    label: 'GPT',
-    children: [
-      { id: 71, label: 'GPT1' },
-      { id: 72, label: 'GPT2' },
-    ],
-  },
-  {
-    id: 8,
-    label: '门户',
-    children: [
-      { id: 81, label: '产品简介' },
-      { id: 82, label: '合作伙伴' },
-    ],
-  },
-])
+// 将路由数据转换为树形结构
+const menuPermissions = computed(() => {
+  const formatRoutes = (routes) => {
+    return routes
+      .filter((route) => !route.meta?.hidden) // 过滤掉隐藏的路由
+      .map((route) => {
+        const node = {
+          id: route.name,
+          label: route.meta?.title || route.name,
+        }
 
-// 按钮权限数据
-const buttonPermissions = ref(['read:system', 'write:system', 'delete:system'])
+        // 如果有子路由且不是布局路由
+        if (route.children && route.children.length) {
+          const children = formatRoutes(route.children)
+          if (children.length) {
+            node.children = children
+          }
+        }
+
+        return node
+      })
+  }
+
+  // 只处理第一个路由（AdminLayout）的子路由
+  return formatRoutes(asyncRoutes[0].children)
+})
+
+onMounted(() => {
+  getRoleList()
+})
+
+// 获取角色列表
+const getRoleList = async () => {
+  roleOptions.value = getRoleOptions().map((role) => ({
+    ...role,
+    updateTime: '', // 最后修改时间
+  }))
+}
+// // 按钮权限数据
+// const buttonPermissions = ref(['read:system', 'write:system', 'delete:system'])
 
 // 打开编辑弹窗
 const handleEdit = (row) => {
   currentRole.value = row
+  // 清空之前的选中状态
+  checkedPermissions.value = []
+  // 重置树形组件状态
+  if (menuTree.value) {
+    menuTree.value.setCheckedKeys([])
+  }
   // 模拟获取该角色的权限数据
-  checkedPermissions.value = ['11', '21', '31'] // 这里应该是从后端获取
+  setTimeout(() => {
+    // 模拟异步获取数据
+    const permissions = ['home', 'manage', 'adminUsers'] // 这里应该是从后端获取
+    checkedPermissions.value = permissions
+    // 设置树形组件选中状态
+    menuTree.value?.setCheckedKeys(permissions)
+  })
   dialogVisible.value = true
 }
 
 // 保存权限
 const handleSave = () => {
+  // 获取选中的菜单权限
+  const checkedNodes = menuTree.value.getCheckedNodes()
+  const permissions = checkedNodes.map((node) => node.id)
+
+  // 更新角色的修改时间
+  const currentTime = new Date().toLocaleString()
+  const roleIndex = roleOptions.value.findIndex((role) => role.value === currentRole.value.value)
+  if (roleIndex > -1) {
+    roleOptions.value[roleIndex].updateTime = currentTime
+  }
+
   console.log('保存权限:', {
     role: currentRole.value,
-    menuPermissions: checkedPermissions.value,
-    buttonPermissions: buttonPermissions.value,
+    menuPermissions: permissions,
+    updateTime: currentTime,
   })
+  dialogVisible.value = false
+}
+
+// 弹窗关闭时清空数据
+const handleClose = () => {
+  checkedPermissions.value = []
+  currentRole.value = null
+  // 重置树形组件状态
+  menuTree.value?.setCheckedKeys([])
   dialogVisible.value = false
 }
 </script>
@@ -102,9 +107,10 @@ const handleSave = () => {
 <template>
   <div class="permissions-page">
     <el-table :data="roleOptions" border>
-      <el-table-column label="身份">
+      <el-table-column label="身份" prop="label" />
+      <el-table-column label="最后修改时间" prop="updateTime" width="180">
         <template #default="{ row }">
-          {{ row.label }}
+          {{ row.updateTime || '暂无修改' }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="120" align="center">
@@ -115,7 +121,11 @@ const handleSave = () => {
     </el-table>
 
     <!-- 权限编辑弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="`编辑${currentRole?.label || ''}权限`" width="600px">
+    <el-dialog
+      v-model="dialogVisible"
+      :title="`编辑${currentRole?.label || ''}权限`"
+      width="600px"
+      @close="handleClose">
       <div class="permission-dialog">
         <el-tabs type="border-card">
           <el-tab-pane label="菜单权限">
@@ -127,7 +137,7 @@ const handleSave = () => {
               :props="{ label: 'label', children: 'children' }"
               v-model:checked-keys="checkedPermissions" />
           </el-tab-pane>
-          <el-tab-pane label="按钮权限">
+          <!-- <el-tab-pane label="按钮权限">
             <div class="button-permissions">
               <el-input
                 v-model="buttonPermissions"
@@ -135,11 +145,11 @@ const handleSave = () => {
                 :rows="4"
                 placeholder="请输入按钮权限，多个权限用逗号分隔" />
             </div>
-          </el-tab-pane>
+          </el-tab-pane> -->
         </el-tabs>
       </div>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button @click="handleClose">取消</el-button>
         <el-button type="primary" @click="handleSave">保存</el-button>
       </template>
     </el-dialog>
