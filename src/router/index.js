@@ -87,7 +87,7 @@ export const asyncRoutes = [
           {
             path: 'config',
             name: 'linkConfig',
-            component: () => import('@/views/official/config.vue'),
+            component: () => import('@/views/official/configLink.vue'),
             meta: {
               title: '配置链接',
             },
