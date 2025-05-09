@@ -103,9 +103,9 @@ export const asyncRoutes = [
         },
         children: [
           {
-            path: 'users',
+            path: 'blacklistUsers',
             name: 'blacklistUsers',
-            component: () => import('@/views/blacklist/users.vue'),
+            component: () => import('@/views/blacklist/blacklistUsers.vue'),
             meta: {
               title: '拉黑用户',
             },
