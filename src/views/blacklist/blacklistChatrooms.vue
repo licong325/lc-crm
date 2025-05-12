@@ -104,13 +104,9 @@ const handleSubmitBlacklist = async () => {
   if (!formRef.value) return
   await formRef.value.validate((valid) => {
     if (valid) {
-      ElMessageBox.confirm(
-        `确认要拉黑用户 ${blacklistForm.value.nickname}(${blacklistForm.value.uid}) 吗？`,
-        '提示',
-        {
-          type: 'warning',
-        }
-      )
+      ElMessageBox.confirm(`确认要拉黑该聊天室 ${blacklistForm.value.nickname} 吗？`, '提示', {
+        type: 'warning',
+      })
         .then(async () => {
           // TODO: 调用拉黑接口
           ElMessage.success('拉黑成功')
@@ -130,7 +126,7 @@ const handleCloseDialog = () => {
 
 // 解除拉黑
 const handleUnblacklist = (row) => {
-  ElMessageBox.confirm(`确认要解除用户 ${row.nickname}(${row.uid}) 的拉黑状态吗？`, '提示', {
+  ElMessageBox.confirm(`确认要解除聊天室 ${row.nickname}(${row.uid}) 的拉黑状态吗？`, '提示', {
     type: 'warning',
   })
     .then(async () => {
@@ -150,7 +146,7 @@ onBeforeMount(() => {
   <div class="blacklist-page">
     <div>
       <el-form inline>
-        <el-form-item label="UID">
+        <el-form-item label="Room/Name">
           <el-input v-model="searchKeyword" />
         </el-form-item>
         <el-form-item>
@@ -160,7 +156,7 @@ onBeforeMount(() => {
 
       <!-- 表格 -->
       <el-table :data="tableData" border v-loading="tableLoading">
-        <el-table-column label="ID" prop="uid" />
+        <el-table-column label="Room ID" prop="uid" />
         <el-table-column label="名称" prop="nickname" />
         <el-table-column label="状态">
           <template #default="{ row }">

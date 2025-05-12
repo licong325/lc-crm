@@ -111,9 +111,9 @@ export const asyncRoutes = [
             },
           },
           {
-            path: 'chatrooms',
+            path: 'blacklistChatrooms',
             name: 'blacklistChatrooms',
-            component: () => import('@/views/blacklist/chatrooms.vue'),
+            component: () => import('@/views/blacklist/blacklistChatrooms.vue'),
             meta: {
               title: '拉黑聊天室',
             },
