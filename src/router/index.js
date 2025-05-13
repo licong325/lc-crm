@@ -222,6 +222,24 @@ export const asyncRoutes = [
           },
         ],
       },
+      {
+        path: '/ranking',
+        name: 'ranking',
+        meta: {
+          title: '排行榜信息',
+          icon: 'TrendCharts',
+        },
+        children: [
+          {
+            path: 'clickableUID',
+            name: 'rankingClickableUID',
+            component: () => import('@/views/ranking/rankingClickableUID.vue'),
+            meta: {
+              title: '排行榜可点击UID',
+            },
+          },
+        ],
+      },
     ],
   },
   {
