@@ -187,9 +187,9 @@ export const asyncRoutes = [
             },
           },
           {
-            path: 'config',
+            path: 'rewardConfig',
             name: 'rewardConfig',
-            component: () => import('@/views/rewards/config.vue'),
+            component: () => import('@/views/rewards/rewardConfig.vue'),
             meta: {
               title: '奖励配置',
             },
