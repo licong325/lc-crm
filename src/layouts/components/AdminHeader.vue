@@ -25,15 +25,15 @@ const handleLogout = () => {
     </el-button>
     <div class="header-title">Great Li CRM</div>
     <div class="header-right">
+      <language-switch variant="inline" />
       <el-dropdown>
         <div class="user-info">
           <span class="username">{{ userStore.userInfo.username }}</span>
-          <el-avatar :size="32" :src="userStore.userInfo.avatar" />
+          <el-avatar :size="32" icon="UserFilled" :src="userStore.userInfo.avatar" />
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item>个人信息</el-dropdown-item>
-            <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
+            <el-dropdown-item @click="handleLogout">{{ $t('common.logout') }}</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
@@ -63,6 +63,9 @@ const handleLogout = () => {
 
   .header-right {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
   }
 }
 

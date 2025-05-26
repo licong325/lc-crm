@@ -54,6 +54,7 @@ declare module 'vue' {
     IconSupport: typeof import('./components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./components/icons/IconTooling.vue')['default']
     ImagePreview: typeof import('./components/ImageComponents/ImagePreview.vue')['default']
+    LanguageSwitch: typeof import('./components/FloatButton/LanguageSwitch.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

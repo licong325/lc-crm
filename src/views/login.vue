@@ -1,7 +1,9 @@
 <script setup>
 import { useUserStore } from '@/stores/user.js'
 import { User, Lock, RefreshRight } from '@element-plus/icons-vue'
+import { useGlobalT } from '@/composables/useGlobalI18n'
 
+const t = useGlobalT()
 const router = useRouter()
 const userStore = useUserStore()
 const loginForm = reactive({
@@ -36,10 +38,10 @@ const handleLogin = async () => {
   loading.value = true
   try {
     await userStore.login(loginForm.username, loginForm.password)
-    ElMessage.success('登录成功')
+    ElMessage.success(t('common.loginSuccess'))
     router.push('/')
   } catch (error) {
-    ElMessage.error(error.message || '登录失败')
+    ElMessage.error(error.message || t('common.loginFailed'))
     getCaptcha()
   } finally {
     loading.value = false
@@ -49,6 +51,7 @@ const handleLogin = async () => {
 
 <template>
   <div class="login-container">
+    <LanguageSwitch />
     <div class="login-background">
       <div class="shape shape1"></div>
       <div class="shape shape2"></div>
@@ -59,14 +62,14 @@ const handleLogin = async () => {
         <div class="logo">
           <img src="@/assets/images/logo.png" alt="logo" />
         </div>
-        <h2>Great Li CRM</h2>
-        <p>欢迎回来，请登录您的账号</p>
+        <h2>{{ $t('common.welcomeBack') }}</h2>
+        <p>{{ $t('common.welcomeBack') }}</p>
       </div>
       <el-form :model="loginForm" class="login-form">
         <el-form-item>
           <el-input
             v-model="loginForm.username"
-            placeholder="请输入用户名"
+            :placeholder="$t('common.inputUsername')"
             :prefix-icon="User"
             size="large" />
         </el-form-item>
@@ -74,7 +77,7 @@ const handleLogin = async () => {
           <el-input
             v-model="loginForm.password"
             type="password"
-            placeholder="请输入密码"
+            :placeholder="$t('common.inputPassword')"
             :prefix-icon="Lock"
             size="large"
             show-password
@@ -94,8 +97,8 @@ const handleLogin = async () => {
           </div>
         </el-form-item>
         <div class="form-footer">
-          <el-checkbox>记住我</el-checkbox>
-          <el-link type="primary">忘记密码？</el-link>
+          <el-checkbox>{{ $t('common.rememberMe') }}</el-checkbox>
+          <el-link type="primary">{{ $t('common.forgotPassword') }}</el-link>
         </div>
         <el-button
           type="primary"
@@ -103,11 +106,11 @@ const handleLogin = async () => {
           :loading="loading"
           @click="handleLogin"
           class="login-button">
-          {{ loading ? '登录中...' : '登录' }}
+          {{ $t('common.login') }}
         </el-button>
       </el-form>
       <div class="login-footer">
-        <p>© {{ new Date().getFullYear() }} Great Li CRM. All rights reserved.</p>
+        <p>© {{ new Date().getFullYear() }} Great Li CRM. {{ $t('common.copyright') }}</p>
       </div>
     </div>
   </div>
@@ -125,7 +128,7 @@ const handleLogin = async () => {
   background: url('@/assets/images/login_bg.jpg') center center / cover no-repeat;
 
   .login-box {
-    width: 520px;
+    width: 720px;
     padding: 50px;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 24px;
