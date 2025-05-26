@@ -23,12 +23,12 @@ const handleLogout = () => {
     <el-button size="small" @click="$emit('toggle-drawer')">
       <el-icon><Menu /></el-icon>
     </el-button>
-    <div class="header-title">Azal Admin</div>
+    <div class="header-title">Great Li CRM</div>
     <div class="header-right">
       <el-dropdown>
         <div class="user-info">
           <span class="username">{{ userStore.userInfo.username }}</span>
-          <el-avatar :size="32" icon="UserFilled" />
+          <el-avatar :size="32" :src="userStore.userInfo.avatar" />
         </div>
         <template #dropdown>
           <el-dropdown-menu>

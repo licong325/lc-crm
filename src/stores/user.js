@@ -4,7 +4,8 @@ export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
   const userInfo = ref({
     username: localStorage.getItem('username') || '',
-    avatar: '',
+    avatar:
+      'https://upload.jianshu.io/users/upload_avatars/2245742/a259daa9-74ba-4361-b441-f4591438c131.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/80/h/80/format/webp',
   })
 
   // 登录
@@ -15,7 +16,11 @@ export const useUserStore = defineStore('user', () => {
         if (username === 'admin' && password === '123456') {
           const token = 'mock_token_' + Date.now()
           setToken(token)
-          setUserInfo({ username, avatar: '' })
+          setUserInfo({
+            username,
+            avatar:
+              'https://upload.jianshu.io/users/upload_avatars/2245742/a259daa9-74ba-4361-b441-f4591438c131.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/80/h/80/format/webp',
+          })
           resolve({ code: 0, message: '登录成功' })
         } else {
           reject({ code: -1, message: '用户名或密码错误' })

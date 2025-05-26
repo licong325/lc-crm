@@ -15,7 +15,7 @@ const test404 = () => {
 
 <template>
   <div class="home">
-    <h1>欢迎使用Azal Admin 系统</h1>
+    <h1>欢迎使用Great Li CRM系统</h1>
     <!-- 接口测试 -->
     <el-button @click="testApi">测试接口</el-button>
     <!-- 测试403 -->
