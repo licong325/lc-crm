@@ -255,8 +255,8 @@ export const asyncRoutes = [
 
 // 创建路由实例
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [...constantRoutes, ...asyncRoutes], // 初始化时合并所有路由
+  history: createWebHistory('/'),
+  routes: [...constantRoutes, ...asyncRoutes],
 })
 
 /**
@@ -264,7 +264,7 @@ const router = createRouter({
  */
 export function resetRouter() {
   const newRouter = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHistory('/'),
     routes: constantRoutes,
   })
   router.matcher = newRouter.matcher

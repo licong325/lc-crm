@@ -25,7 +25,7 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
-    base: './',
+    base: '/',
     // 插件配置
     plugins: [
       /* 启用 Vue 支持 */
@@ -137,7 +137,7 @@ export default defineConfig(({ command, mode }) => {
             /* Vue 相关库打包在一起 */
             vue: ['vue', 'vue-router', 'pinia'],
             /* Element Plus 单独打包 */
-            elementPlus: ['element-plus'],
+            'element-plus': ['element-plus'],
           },
         },
       },
