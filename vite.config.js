@@ -25,6 +25,7 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
+    base: './',
     // 插件配置
     plugins: [
       /* 启用 Vue 支持 */

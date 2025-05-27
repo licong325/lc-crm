@@ -2,16 +2,10 @@ import axios from 'axios'
 import { useUserStore } from '@/stores/user.js'
 
 // 环境配置
-const ENV_CONFIG = {
-  test: 'https://test-crm.azallivegroup.com/',
-  grey: 'https://grey-crm.azallivegroup.com/',
-  master: 'https://crm.azallivegroup.com/',
-}
 
 // 获取当前环境
 const getBaseUrl = () => {
-  const env = import.meta.env.VITE_APP_ENV || 'master'
-  return ENV_CONFIG[env]
+  return 'https://test-crm.azallivegroup.com/'
 }
 
 // 创建 axios 实例
