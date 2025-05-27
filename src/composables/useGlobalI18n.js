@@ -5,17 +5,6 @@
 import i18n from '@/locales'
 
 /**
- * 直接导出 i18n 实例的翻译方法
- * 用于全局属性和简单翻译场景
- * @example
- * // 在模板中使用
- * {{ $t('common.login') }}
- * // 在 JS 中使用
- * const message = globalT('common.login')
- */
-export const globalT = i18n.global.t
-
-/**
  * 创建全局 i18n 实例，提供完整的国际化功能
  * 主要用于需要切换语言的场景
  * @returns {Object} 包含语言设置

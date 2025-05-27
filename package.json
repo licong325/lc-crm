@@ -16,8 +16,8 @@
     "pinia": "3.0.1",
     "sass": "1.87.0",
     "vue": "3.5.13",
-    "vue-router": "4.5.0",
-    "vue-i18n": "^12.0.0-alpha.2"
+    "vue-i18n": "^9.14.4",
+    "vue-router": "4.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-legacy": "6.1.0",
