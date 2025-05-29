@@ -9,7 +9,7 @@ export function setupRouterGuard(router) {
 
     if (userStore.token) {
       if (to.path === '/login') {
-        next('/')
+        next('/home')
       } else {
         next()
       }

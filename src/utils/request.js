@@ -5,7 +5,13 @@ import { useUserStore } from '@/stores/user.js'
 
 // 获取当前环境
 const getBaseUrl = () => {
-  return 'https://test-crm.azallivegroup.com/'
+  const env = import.meta.env.VITE_APP_ENV
+
+  // 本地开发环境
+  if (env === 'development' || import.meta.env.DEV) {
+    return 'http://localhost:3001'
+  }
+  return 'https://lc-serve.vercel.app'
 }
 
 // 创建 axios 实例
@@ -53,7 +59,11 @@ service.interceptors.response.use(
     let message = ''
     // HTTP 状态码
     const status = error.response?.status
+    console.log('error', error)
     switch (status) {
+      case 400:
+        message = error.response.data.message || '请求错误'
+        break
       case 401:
         message = '未登录'
         // 这里可以处理未登录或token过期的情况

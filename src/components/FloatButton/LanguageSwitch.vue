@@ -10,7 +10,7 @@
  */
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { SUPPORTED_LANGUAGES } from '@/locales/config'
+import { SUPPORTED_LANGUAGES } from '@/i18n/config'
 
 const props = defineProps({
   variant: {

@@ -7,7 +7,7 @@ const app = createApp(App)
 import router from './router'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import './styles/base.css'
-import i18n from './locales'
+import i18n from './i18n'
 
 // 注册所有图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

@@ -2,7 +2,7 @@
  * 全局国际化工具函数
  * @module useGlobalI18n
  */
-import i18n from '@/locales'
+import i18n from '@/i18n'
 
 /**
  * 创建全局 i18n 实例，提供完整的国际化功能
