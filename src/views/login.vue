@@ -8,8 +8,8 @@ const t = useGlobalT()
 const router = useRouter()
 const userStore = useUserStore()
 const loginForm = reactive({
-  username: 'admin',
-  password: 'admin',
+  username: '',
+  password: '',
   captcha: '',
 })
 const loginRules = reactive({
