@@ -241,6 +241,24 @@ export const asyncRoutes = [
           },
         ],
       },
+      {
+        path: 'functionAll',
+        name: 'functionAll',
+        meta: {
+          title: '功能合集',
+          icon: 'TrendCharts',
+        },
+        children: [
+          {
+            path: 'billiards',
+            name: 'billiards',
+            component: () => import('@/views/functionAll/billiards.vue'),
+            meta: {
+              title: '台球',
+            },
+          },
+        ],
+      },
     ],
   },
   {
