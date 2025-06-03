@@ -499,6 +499,55 @@ const canUseBigGold = (player: Player) => {
   // 只有顺序为1的玩家可以使用大金
   return player.order === 1
 }
+
+// 让杆加1，获得上家的分数但不改变顺序
+const handleCuePass = (index: number) => {
+  // 在修改比分模式下，不执行抢分
+  if (isScoreEditMode.value) {
+    updateScore(index, 'add', 1)
+    return
+  }
+
+  // 只有九球模式才有这个功能
+  if (!isNineBallMode.value) {
+    updateScore(index, 'add', 1)
+    return
+  }
+
+  // 保存当前玩家原始分数
+  const oldScore = players.value[index].score
+  previousScores.value.set(index, oldScore)
+
+  // 查找当前玩家在排序后数组中的位置
+  const sortedIndex = sortedPlayers.value.findIndex((p) => p === players.value[index])
+
+  // 上一位玩家的位置(环形索引)，例如当前是3号，上家就是2号
+  const prevSortedIndex =
+    (sortedIndex - 1 + sortedPlayers.value.length) % sortedPlayers.value.length
+
+  // 获取上一位玩家在原始数组中的索引
+  const prevPlayerIndex = players.value.indexOf(sortedPlayers.value[prevSortedIndex])
+
+  if (prevPlayerIndex !== -1) {
+    // 保存上一位玩家原始分数
+    const prevPlayerOldScore = players.value[prevPlayerIndex].score
+    previousScores.value.set(prevPlayerIndex, prevPlayerOldScore)
+
+    // 当前玩家加分
+    players.value[index].score = Math.min(oldScore + 1, 999)
+
+    // 上一位玩家减分
+    const prevPlayerNewScore = Math.max(prevPlayerOldScore - 1, 0)
+    players.value[prevPlayerIndex].score = prevPlayerNewScore
+
+    // 显示让杆提示
+    ElMessage({
+      message: `让杆: ${players.value[index].name} +1，${players.value[prevPlayerIndex].name} -1`,
+      type: 'info',
+      duration: 2000,
+    })
+  }
+}
 </script>
 
 <template>
@@ -698,6 +747,11 @@ const canUseBigGold = (player: Player) => {
                 <el-button type="warning" @click="updateScore(players.indexOf(player), 'add', 1)">
                   +1
                 </el-button>
+                <el-button type="warning" @click="handleCuePass(players.indexOf(player))">
+                  让杆+1
+                </el-button>
+              </div>
+              <div class="button-row add">
                 <el-button type="success" @click="updateScore(players.indexOf(player), 'add', 4)">
                   +4
                 </el-button>
@@ -880,7 +934,7 @@ const canUseBigGold = (player: Player) => {
     margin: 0 auto;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 24px;
-    padding: 50px 40px;
+    padding: 30px 20px;
     text-align: center;
     backdrop-filter: blur(12px);
     border: 2px solid rgba(255, 255, 255, 0.2);
@@ -1023,9 +1077,9 @@ const canUseBigGold = (player: Player) => {
           :deep(.el-button) {
             flex: 1;
             min-width: 0;
-            max-width: calc(25% - 9px);
+            max-width: calc(32% - 10px);
             padding: 20px 0;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
             white-space: nowrap;
             overflow: hidden;
