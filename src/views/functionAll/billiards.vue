@@ -238,7 +238,7 @@ const directUpdateScore = (index: number, newScore: number) => {
   players.value[index].score = Math.max(0, Math.min(newScore, 999))
 }
 
-// 修改更新分数的逻辑，区分自由球(1分)和进球(其他分值)，支持两人对战
+// 修改更新分数的逻辑，大金时所有其他玩家减分
 const updateScore = (index: number, type: 'add' | 'subtract', value = 1) => {
   const oldScore = players.value[index].score
   previousScores.value.set(index, oldScore)
@@ -282,6 +282,67 @@ const updateScore = (index: number, type: 'add' | 'subtract', value = 1) => {
           type: 'warning',
           duration: 2000,
         })
+      }
+    }
+    // 如果是加10分(大金)，所有其他玩家都减10分
+    else if (value === 10) {
+      // 获取所有其他玩家的索引
+      const otherPlayerIndices = players.value.map((_, i) => i).filter((i) => i !== index)
+
+      // 所有其他玩家减分
+      otherPlayerIndices.forEach((otherIndex) => {
+        // 保存其他玩家原始分数
+        const otherPlayerOldScore = players.value[otherIndex].score
+        previousScores.value.set(otherIndex, otherPlayerOldScore)
+
+        // 其他玩家减分
+        const otherPlayerNewScore = Math.max(otherPlayerOldScore - value, 0)
+        players.value[otherIndex].score = otherPlayerNewScore
+      })
+
+      // 显示大金提示
+      ElMessage({
+        message: `大金: ${players.value[index].name} +10，其他所有玩家 -10`,
+        type: 'success',
+        duration: 3000,
+      })
+
+      // 自动调整顺序 - 支持两人或多人对战
+      if (players.value.length === 2) {
+        // 两人对战时的顺序调整
+        // 加分玩家变为第一位
+        players.value[index].order = 1
+        // 减分玩家变为第二位
+        players.value[otherPlayerIndices[0]].order = 2
+
+        ElMessage.success(
+          `顺序已调整: ${players.value[index].name} → ${players.value[otherPlayerIndices[0]].name}`
+        )
+      } else {
+        // 三人或更多人对战时的顺序调整
+        // 加分玩家变为第一位
+        players.value[index].order = 1
+
+        // 其他玩家按原来的相对顺序排列
+        let nextOrder = 2
+        const sortedOtherIndices = [...otherPlayerIndices].sort((a, b) => {
+          const orderA = players.value[a].order || 999
+          const orderB = players.value[b].order || 999
+          return orderA - orderB
+        })
+
+        sortedOtherIndices.forEach((otherIndex) => {
+          players.value[otherIndex].order = nextOrder++
+        })
+
+        // 构建顺序调整提示消息
+        const orderNames = [
+          players.value[index].name,
+          ...sortedOtherIndices.map((i) => players.value[i].name),
+        ]
+        const orderMessage = `顺序已调整: ${orderNames.join(' → ')}`
+
+        ElMessage.success(orderMessage)
       }
     }
     // 如果是加其他分值(进球)，减分的是被追分的玩家
@@ -429,6 +490,15 @@ const sortedPlayers = computed(() => {
     return orderA - orderB
   })
 })
+
+// 检查玩家是否可以使用大金按钮
+const canUseBigGold = (player: Player) => {
+  // 只有九球模式才有这个限制
+  if (!isNineBallMode.value) return true
+
+  // 只有顺序为1的玩家可以使用大金
+  return player.order === 1
+}
 </script>
 
 <template>
@@ -602,7 +672,7 @@ const sortedPlayers = computed(() => {
           </div>
           <div class="score-controls">
             <div class="button-rows">
-              <div class="button-row subtract">
+              <!-- <div class="button-row subtract">
                 <el-button
                   type="danger"
                   @click="updateScore(players.indexOf(player), 'subtract', 1)"
@@ -623,7 +693,7 @@ const sortedPlayers = computed(() => {
                   @click="updateScore(players.indexOf(player), 'subtract', 10)"
                   >-10</el-button
                 >
-              </div>
+              </div> -->
               <div class="button-row add">
                 <el-button type="warning" @click="updateScore(players.indexOf(player), 'add', 1)">
                   +1
@@ -634,7 +704,14 @@ const sortedPlayers = computed(() => {
                 <el-button type="success" @click="updateScore(players.indexOf(player), 'add', 7)">
                   小金
                 </el-button>
-                <el-button type="success" @click="updateScore(players.indexOf(player), 'add', 10)">
+                <el-button
+                  type="success"
+                  @click="updateScore(players.indexOf(player), 'add', 10)"
+                  :disabled="!canUseBigGold(player) && !isScoreEditMode"
+                  :class="{
+                    'big-gold-btn': true,
+                    'disabled-big-gold': !canUseBigGold(player) && !isScoreEditMode,
+                  }">
                   大金
                 </el-button>
               </div>
@@ -835,7 +912,7 @@ const sortedPlayers = computed(() => {
       .player-name {
         font-size: 56px;
         font-weight: 700;
-        margin-bottom: 50px;
+        margin-bottom: 10px;
         color: var(--el-text-color-primary);
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         padding: 15px 0;
@@ -859,7 +936,7 @@ const sortedPlayers = computed(() => {
         font-size: 20px;
         color: var(--el-text-color-secondary);
         margin-top: -30px;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
 
         span {
           background-color: var(--player-color);
@@ -881,7 +958,7 @@ const sortedPlayers = computed(() => {
       .digit-wrapper {
         position: relative;
         width: 140px;
-        height: 180px;
+        height: 280px;
 
         .digit {
           position: relative;
@@ -899,7 +976,7 @@ const sortedPlayers = computed(() => {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 96px;
+            font-size: 146px;
             font-weight: bold;
             font-family: monospace;
             color: white;
@@ -1186,6 +1263,37 @@ const sortedPlayers = computed(() => {
   }
   50% {
     opacity: 1;
+  }
+}
+
+/* 大金按钮样式 */
+.big-gold-btn {
+  position: relative;
+
+  &.disabled-big-gold {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    &::after {
+      content: '仅顺序1可用';
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    &:hover::after {
+      opacity: 1;
+    }
   }
 }
 </style>
