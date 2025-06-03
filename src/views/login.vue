@@ -59,6 +59,34 @@ const handleLogin = async () => {
     }
   })
 }
+const restLogin = async () => {
+  console.log('restLogin')
+
+  loginForm.username = 'admin'
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, 300)
+  })
+  loginForm.password = '123456'
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, 300)
+  })
+  loginForm.captcha = '123456'
+  loading.value = true
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, 1000)
+  }).then(() => {
+    loading.value = false
+    userStore.setToken('kjcnjkcznzkfhineeiuhnmx')
+    ElMessage.success('登录成功')
+    router.push('/home')
+  })
+}
 </script>
 
 <template>
@@ -119,6 +147,16 @@ const handleLogin = async () => {
           class="login-button">
           {{ $t('common.login') }}
         </el-button>
+        <div>
+          <el-button
+            type="primary"
+            size="large"
+            :loading="loading"
+            @click="restLogin"
+            class="login-button">
+            离线登录
+          </el-button>
+        </div>
       </el-form>
       <div class="login-footer">
         <p>© {{ new Date().getFullYear() }} Great Li CRM. {{ $t('common.copyright') }}</p>
