@@ -11,7 +11,8 @@ const getBaseUrl = () => {
   if (env === 'development' || import.meta.env.DEV) {
     return 'http://localhost:3001'
   }
-  return 'https://lc-serve.vercel.app'
+  // return 'https://lc-serve.vercel.app'
+  return 'https://lc-serve.greatli.cn'
 }
 
 // 创建 axios 实例
