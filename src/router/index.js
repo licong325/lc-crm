@@ -257,6 +257,14 @@ export const asyncRoutes = [
               title: '台球',
             },
           },
+          {
+            path: 'billiards2',
+            name: 'billiards2',
+            component: () => import('@/views/functionAll/billiards2.vue'),
+            meta: {
+              title: '台球2',
+            },
+          },
         ],
       },
     ],
