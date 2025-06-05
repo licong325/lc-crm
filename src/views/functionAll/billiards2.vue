@@ -819,8 +819,9 @@ const getPlayerColor = (index: number) => {
 }
 
 .player-card-container {
+  width: 95%;
   padding: 0;
-  margin-bottom: 20px;
+  margin-bottom: 50px;
 }
 
 .player-card {
@@ -862,7 +863,7 @@ const getPlayerColor = (index: number) => {
 
   .scoring-box {
     width: 100%;
-    height: 320px;
+    height: 380px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -901,15 +902,15 @@ const getPlayerColor = (index: number) => {
 
     .score-button {
       width: 32%;
-      height: 70px;
+      height: 120px;
       margin: 4px 0;
       text-align: center;
-      line-height: 70px;
+      line-height: 120px;
       cursor: pointer;
       background-color: #ffffff;
       border-radius: 6px;
-      font-size: 22px;
-      font-weight: 500;
+      font-size: 32px;
+      font-weight: 600;
       color: #495057;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       transition: all 0.2s ease;
