@@ -29,6 +29,18 @@ interface GameState {
   activeName: string
 }
 
+// 为中八模式添加新的接口和函数
+interface ChineseEightBallPlayer {
+  name: string
+  score: number
+  // 普胜
+  pusheng: number
+  // 接清
+  jieping: number
+  // 炸清
+  zhaoping: number
+}
+
 // localStorage存储的键名
 const STORAGE_KEY = 'billiards_game_data'
 
@@ -44,6 +56,16 @@ const defaultState: GameState = {
   activeName: 'first',
 }
 
+// 中八游戏状态
+const chineseEightBallState = ref({
+  initialScore: 0,
+  players: [
+    { name: '玩家1', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+    { name: '玩家2', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+  ] as ChineseEightBallPlayer[],
+  isEdit: true,
+})
+
 // 从localStorage加载状态或使用默认状态
 const loadState = (): GameState => {
   try {
@@ -57,6 +79,26 @@ const loadState = (): GameState => {
   return defaultState
 }
 
+// 从localStorage加载中八模式状态
+const loadChineseEightBallState = () => {
+  try {
+    const savedState = localStorage.getItem('chinese_eight_ball_data')
+    if (savedState) {
+      return JSON.parse(savedState)
+    }
+  } catch (e) {
+    console.error('Failed to load Chinese eight ball state from localStorage:', e)
+  }
+  return {
+    initialScore: 0,
+    players: [
+      { name: '玩家1', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+      { name: '玩家2', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+    ],
+    isEdit: true,
+  }
+}
+
 // 初始化状态
 const savedState = loadState()
 const activeName = ref(savedState.activeName)
@@ -66,6 +108,10 @@ const form = ref({
   initialScore: savedState.initialScore,
   players: savedState.players,
 })
+
+// 初始化中八状态
+const savedChineseEightBallState = loadChineseEightBallState()
+chineseEightBallState.value = savedChineseEightBallState
 
 // 保存状态到localStorage
 const saveState = () => {
@@ -91,6 +137,15 @@ watch(
   },
   { deep: true }
 )
+
+// 监听中八状态变化，自动保存
+const saveChineseEightBallState = () => {
+  try {
+    localStorage.setItem('chinese_eight_ball_data', JSON.stringify(chineseEightBallState.value))
+  } catch (e) {
+    console.error('Failed to save Chinese eight ball state to localStorage:', e)
+  }
+}
 
 // 计算属性：按顺序排序的玩家
 const sortedPlayers = computed(() => {
@@ -662,6 +717,90 @@ const playerColors = [
 const getPlayerColor = (index: number) => {
   return playerColors[index % playerColors.length]
 }
+
+// 中八开始游戏
+const handleStartChineseEightBall = () => {
+  // 验证玩家姓名是否为空
+  const invalidPlayers = chineseEightBallState.value.players.filter((player) => !player.name.trim())
+  if (invalidPlayers.length > 0) {
+    ElMessage.error('玩家姓名不能为空，请填写所有玩家的姓名')
+    return
+  }
+
+  chineseEightBallState.value.isEdit = false
+}
+
+// 编辑中八游戏
+const handleEditChineseEightBall = () => {
+  chineseEightBallState.value.isEdit = true
+}
+
+// 重置中八游戏
+const resetChineseEightBall = () => {
+  chineseEightBallState.value.players.forEach((player) => {
+    player.score = chineseEightBallState.value.initialScore
+    player.pusheng = 0
+    player.jieping = 0
+    player.zhaoping = 0
+  })
+
+  saveChineseEightBallState()
+}
+
+// 中八得分处理函数
+const handleChineseEightBallScore = (
+  playerIndex: number,
+  scoreType: 'pusheng' | 'jieping' | 'zhaoping'
+) => {
+  const currentPlayer = chineseEightBallState.value.players[playerIndex]
+  const opponentIndex = playerIndex === 0 ? 1 : 0
+
+  // 加1分
+  currentPlayer.score += 1
+
+  // 增加对应类型的计数
+  currentPlayer[scoreType]++
+
+  saveChineseEightBallState()
+}
+
+// 中八修正比分相关
+const chineseEightBallDialogVisible = ref(false)
+const adjustChineseEightBallForm = ref({
+  players: [] as ChineseEightBallPlayer[],
+})
+
+// 打开中八修正比分对话框
+const openChineseEightBallAdjustDialog = () => {
+  adjustChineseEightBallForm.value.players = JSON.parse(
+    JSON.stringify(chineseEightBallState.value.players)
+  )
+  chineseEightBallDialogVisible.value = true
+}
+
+// 保存中八修正的比分
+const saveAdjustedChineseEightBallScores = () => {
+  chineseEightBallState.value.players = JSON.parse(
+    JSON.stringify(adjustChineseEightBallForm.value.players)
+  )
+  chineseEightBallDialogVisible.value = false
+  ElMessage.success('比分修正成功')
+}
+
+// 完全重置中八
+const fullResetChineseEightBall = () => {
+  chineseEightBallState.value = {
+    initialScore: 0,
+    players: [
+      { name: '玩家1', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+      { name: '玩家2', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+    ],
+    isEdit: true,
+  }
+
+  saveChineseEightBallState()
+  ElMessage.success('中八游戏数据已完全重置')
+}
 </script>
 
 <template>
@@ -756,7 +895,65 @@ const getPlayerColor = (index: number) => {
         </el-row>
       </el-tab-pane>
       <el-tab-pane label="中八" name="second">
-        <div>中八</div>
+        <el-form inline v-if="chineseEightBallState.isEdit">
+          <el-form-item label="初始分数" prop="initialScore">
+            <el-input v-model="chineseEightBallState.initialScore" placeholder="请输入初始分数" />
+          </el-form-item>
+          <el-form-item
+            v-for="(player, index) in chineseEightBallState.players"
+            :key="index"
+            :label="`${index + 1}号玩家姓名`">
+            <div class="player-input-row">
+              <el-input v-model="player.name" placeholder="请输入玩家姓名" />
+            </div>
+          </el-form-item>
+          <el-button type="primary" @click="handleStartChineseEightBall">开始游戏</el-button>
+        </el-form>
+
+        <div v-if="!chineseEightBallState.isEdit" class="game-controls">
+          <el-button type="primary" @click="handleEditChineseEightBall">编辑游戏</el-button>
+          <el-button type="danger" @click="resetChineseEightBall">重置游戏</el-button>
+          <el-button type="warning" @click="openChineseEightBallAdjustDialog">修正比分</el-button>
+        </div>
+
+        <el-row v-if="!chineseEightBallState.isEdit">
+          <el-col
+            v-for="(player, index) in chineseEightBallState.players"
+            :key="player.name"
+            :span="12">
+            <div class="player-card-container">
+              <div
+                class="player-card"
+                :style="{
+                  '--player-primary': getPlayerColor(index).primary,
+                  '--player-secondary': getPlayerColor(index).secondary,
+                  '--player-background': getPlayerColor(index).background,
+                  '--player-text': getPlayerColor(index).text,
+                }">
+                <div class="player-card-name">{{ player.name }}</div>
+                <div class="scoring-box">
+                  <div
+                    class="scoring-box-item"
+                    v-for="(digit, digitIndex) in getDisplayDigits(player.score)"
+                    :key="digitIndex">
+                    <span>{{ digit }}</span>
+                  </div>
+                </div>
+                <div class="player-card-button">
+                  <div class="score-button" @click="handleChineseEightBallScore(index, 'pusheng')">
+                    普胜({{ player.pusheng }})
+                  </div>
+                  <div class="score-button" @click="handleChineseEightBallScore(index, 'jieping')">
+                    接清({{ player.jieping }})
+                  </div>
+                  <div class="score-button" @click="handleChineseEightBallScore(index, 'zhaoping')">
+                    炸清({{ player.zhaoping }})
+                  </div>
+                </div>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
       </el-tab-pane>
       <el-tab-pane label="多人计分" name="third">
         <div>多人计分</div>
@@ -794,6 +991,29 @@ const getPlayerColor = (index: number) => {
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
           <el-button type="primary" @click="saveAdjustedScores">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 中八修正比分对话框 -->
+    <el-dialog title="修正比分" v-model="chineseEightBallDialogVisible" width="500px">
+      <el-form>
+        <el-form-item
+          v-for="(player, index) in adjustChineseEightBallForm.players"
+          :key="index"
+          :label="player.name">
+          <el-input-number
+            v-model="player.score"
+            :min="0"
+            :max="999"
+            label="比分"
+            style="width: 100%" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="chineseEightBallDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="saveAdjustedChineseEightBallScores">保存</el-button>
         </span>
       </template>
     </el-dialog>
