@@ -41,6 +41,18 @@ interface ChineseEightBallPlayer {
   zhaoping: number
 }
 
+// 为多人计分模式添加接口和状态
+interface MultiPlayerScorePlayer {
+  name: string
+  score: number
+  // 普胜
+  pusheng: number
+  // 接清
+  jieping: number
+  // 炸清
+  zhaoping: number
+}
+
 // localStorage存储的键名
 const STORAGE_KEY = 'billiards_game_data'
 
@@ -63,6 +75,16 @@ const chineseEightBallState = ref({
     { name: '玩家1', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
     { name: '玩家2', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
   ] as ChineseEightBallPlayer[],
+  isEdit: true,
+})
+
+// 多人计分状态
+const multiPlayerState = ref({
+  initialScore: 0,
+  players: [
+    { name: '玩家1', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+    { name: '玩家2', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+  ] as MultiPlayerScorePlayer[],
   isEdit: true,
 })
 
@@ -99,6 +121,26 @@ const loadChineseEightBallState = () => {
   }
 }
 
+// 从localStorage加载多人计分模式状态
+const loadMultiPlayerState = () => {
+  try {
+    const savedState = localStorage.getItem('multi_player_score_data')
+    if (savedState) {
+      return JSON.parse(savedState)
+    }
+  } catch (e) {
+    console.error('Failed to load multi-player score state from localStorage:', e)
+  }
+  return {
+    initialScore: 0,
+    players: [
+      { name: '玩家1', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+      { name: '玩家2', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+    ],
+    isEdit: true,
+  }
+}
+
 // 初始化状态
 const savedState = loadState()
 const activeName = ref(savedState.activeName)
@@ -112,6 +154,10 @@ const form = ref({
 // 初始化中八状态
 const savedChineseEightBallState = loadChineseEightBallState()
 chineseEightBallState.value = savedChineseEightBallState
+
+// 初始化多人计分状态
+const savedMultiPlayerState = loadMultiPlayerState()
+multiPlayerState.value = savedMultiPlayerState
 
 // 保存状态到localStorage
 const saveState = () => {
@@ -144,6 +190,15 @@ const saveChineseEightBallState = () => {
     localStorage.setItem('chinese_eight_ball_data', JSON.stringify(chineseEightBallState.value))
   } catch (e) {
     console.error('Failed to save Chinese eight ball state to localStorage:', e)
+  }
+}
+
+// 监听多人计分状态变化，自动保存
+const saveMultiPlayerState = () => {
+  try {
+    localStorage.setItem('multi_player_score_data', JSON.stringify(multiPlayerState.value))
+  } catch (e) {
+    console.error('Failed to save multi-player score state to localStorage:', e)
   }
 }
 
@@ -801,6 +856,105 @@ const fullResetChineseEightBall = () => {
   saveChineseEightBallState()
   ElMessage.success('中八游戏数据已完全重置')
 }
+
+// 添加玩家
+const addPlayer = () => {
+  multiPlayerState.value.players.push({
+    name: `玩家${multiPlayerState.value.players.length + 1}`,
+    score: 0,
+    pusheng: 0,
+    jieping: 0,
+    zhaoping: 0,
+  })
+}
+
+// 删除玩家
+const removePlayer = (index: number) => {
+  if (multiPlayerState.value.players.length > 2) {
+    multiPlayerState.value.players.splice(index, 1)
+  } else {
+    ElMessage.warning('至少需要2名玩家')
+  }
+}
+
+// 多人计分开始游戏
+const handleStartMultiPlayer = () => {
+  // 验证玩家姓名是否为空
+  const invalidPlayers = multiPlayerState.value.players.filter((player) => !player.name.trim())
+  if (invalidPlayers.length > 0) {
+    ElMessage.error('玩家姓名不能为空，请填写所有玩家的姓名')
+    return
+  }
+
+  multiPlayerState.value.isEdit = false
+}
+
+// 编辑多人计分游戏
+const handleEditMultiPlayer = () => {
+  multiPlayerState.value.isEdit = true
+}
+
+// 重置多人计分游戏
+const resetMultiPlayer = () => {
+  multiPlayerState.value.players.forEach((player) => {
+    player.score = multiPlayerState.value.initialScore
+    player.pusheng = 0
+    player.jieping = 0
+    player.zhaoping = 0
+  })
+
+  saveMultiPlayerState()
+}
+
+// 多人计分得分处理函数
+const handleMultiPlayerScore = (
+  playerIndex: number,
+  scoreType: 'pusheng' | 'jieping' | 'zhaoping'
+) => {
+  const currentPlayer = multiPlayerState.value.players[playerIndex]
+
+  // 加1分
+  currentPlayer.score += 1
+
+  // 增加对应类型的计数
+  currentPlayer[scoreType]++
+
+  saveMultiPlayerState()
+}
+
+// 多人计分修正比分相关
+const multiPlayerDialogVisible = ref(false)
+const adjustMultiPlayerForm = ref({
+  players: [] as MultiPlayerScorePlayer[],
+})
+
+// 打开多人计分修正比分对话框
+const openMultiPlayerAdjustDialog = () => {
+  adjustMultiPlayerForm.value.players = JSON.parse(JSON.stringify(multiPlayerState.value.players))
+  multiPlayerDialogVisible.value = true
+}
+
+// 保存多人计分修正的比分
+const saveAdjustedMultiPlayerScores = () => {
+  multiPlayerState.value.players = JSON.parse(JSON.stringify(adjustMultiPlayerForm.value.players))
+  multiPlayerDialogVisible.value = false
+  ElMessage.success('比分修正成功')
+}
+
+// 完全重置多人计分
+const fullResetMultiPlayer = () => {
+  multiPlayerState.value = {
+    initialScore: 0,
+    players: [
+      { name: '玩家1', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+      { name: '玩家2', score: 0, pusheng: 0, jieping: 0, zhaoping: 0 },
+    ],
+    isEdit: true,
+  }
+
+  saveMultiPlayerState()
+  ElMessage.success('多人计分游戏数据已完全重置')
+}
 </script>
 
 <template>
@@ -956,7 +1110,87 @@ const fullResetChineseEightBall = () => {
         </el-row>
       </el-tab-pane>
       <el-tab-pane label="多人计分" name="third">
-        <div>多人计分</div>
+        <el-form inline v-if="multiPlayerState.isEdit">
+          <el-form-item label="初始分数" prop="initialScore">
+            <el-input v-model="multiPlayerState.initialScore" placeholder="请输入初始分数" />
+          </el-form-item>
+
+          <div class="player-list-controls">
+            <el-button type="primary" icon="Plus" @click="addPlayer">添加玩家</el-button>
+          </div>
+
+          <div class="players-container">
+            <el-form-item
+              v-for="(player, index) in multiPlayerState.players"
+              :key="index"
+              :label="`玩家 ${index + 1}`"
+              class="player-item">
+              <div class="player-input-row">
+                <el-input v-model="player.name" placeholder="请输入玩家姓名" />
+                <el-button
+                  type="danger"
+                  icon="Delete"
+                  circle
+                  @click="removePlayer(index)"
+                  :disabled="multiPlayerState.players.length <= 2">
+                </el-button>
+              </div>
+            </el-form-item>
+          </div>
+
+          <div class="form-footer">
+            <el-button type="primary" @click="handleStartMultiPlayer">开始游戏</el-button>
+          </div>
+        </el-form>
+
+        <div v-if="!multiPlayerState.isEdit" class="game-controls">
+          <el-button type="primary" @click="handleEditMultiPlayer">编辑游戏</el-button>
+          <el-button type="danger" @click="resetMultiPlayer">重置游戏</el-button>
+          <el-button type="warning" @click="openMultiPlayerAdjustDialog">修正比分</el-button>
+        </div>
+
+        <el-row v-if="!multiPlayerState.isEdit" :gutter="20">
+          <el-col
+            v-for="(player, index) in multiPlayerState.players"
+            :key="player.name"
+            :xs="24"
+            :sm="12"
+            :md="8"
+            :lg="6"
+            :xl="4">
+            <div class="player-card-container multi-player-card">
+              <div
+                class="player-card"
+                :style="{
+                  '--player-primary': getPlayerColor(index).primary,
+                  '--player-secondary': getPlayerColor(index).secondary,
+                  '--player-background': getPlayerColor(index).background,
+                  '--player-text': getPlayerColor(index).text,
+                }">
+                <div class="player-card-name">{{ player.name }}</div>
+                <div class="scoring-box">
+                  <div
+                    class="scoring-box-item"
+                    v-for="(digit, digitIndex) in getDisplayDigits(player.score)"
+                    :key="digitIndex">
+                    <span>{{ digit }}</span>
+                  </div>
+                </div>
+                <div class="player-card-button">
+                  <div class="score-button" @click="handleMultiPlayerScore(index, 'pusheng')">
+                    普胜({{ player.pusheng }})
+                  </div>
+                  <div class="score-button" @click="handleMultiPlayerScore(index, 'jieping')">
+                    接清({{ player.jieping }})
+                  </div>
+                  <div class="score-button" @click="handleMultiPlayerScore(index, 'zhaoping')">
+                    炸清({{ player.zhaoping }})
+                  </div>
+                </div>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
       </el-tab-pane>
     </el-tabs>
 
@@ -1014,6 +1248,29 @@ const fullResetChineseEightBall = () => {
         <span class="dialog-footer">
           <el-button @click="chineseEightBallDialogVisible = false">取消</el-button>
           <el-button type="primary" @click="saveAdjustedChineseEightBallScores">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 多人计分修正比分对话框 -->
+    <el-dialog title="修正比分" v-model="multiPlayerDialogVisible" width="500px">
+      <el-form>
+        <el-form-item
+          v-for="(player, index) in adjustMultiPlayerForm.players"
+          :key="index"
+          :label="player.name">
+          <el-input-number
+            v-model="player.score"
+            :min="0"
+            :max="999"
+            label="比分"
+            style="width: 100%" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="multiPlayerDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="saveAdjustedMultiPlayerScores">保存</el-button>
         </span>
       </template>
     </el-dialog>
@@ -1264,6 +1521,57 @@ const fullResetChineseEightBall = () => {
 
   &:hover {
     opacity: 1;
+  }
+}
+
+// 多人计分模式特定样式
+.player-list-controls {
+  width: 100%;
+  margin: 10px 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.players-container {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.player-item {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.player-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-footer {
+  width: 100%;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.multi-player-card {
+  margin-bottom: 20px;
+}
+
+@media (max-width: 768px) {
+  .scoring-box {
+    height: 200px !important;
+
+    .scoring-box-item span {
+      font-size: 160px !important;
+    }
+  }
+
+  .score-button {
+    height: 80px !important;
+    line-height: 80px !important;
+    font-size: 28px !important;
   }
 }
 </style>
