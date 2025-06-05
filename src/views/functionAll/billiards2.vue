@@ -589,10 +589,12 @@ const handleDajin = (index: number) => {
     const opponentIndex = getOpponentIndex(index)
     const opponent = form.value.players[opponentIndex]
 
-    // 当前玩家加20分
-    currentPlayer.score += 20
     // 对手减10分，但不低于0
-    opponent.score = Math.max(0, opponent.score - 10)
+    const pointsToTake = Math.min(10, opponent.score)
+    opponent.score -= pointsToTake
+
+    // 当前玩家加上从对手拿走的分数
+    currentPlayer.score += pointsToTake
 
     // 记录大金次数
     currentPlayer.dajin++
@@ -602,17 +604,23 @@ const handleDajin = (index: number) => {
     opponent.order = 2
   } else {
     // 多人模式新规则
-    // 当前玩家加20分并记录大金次数
-    currentPlayer.score += 20
-    currentPlayer.dajin++
+    let totalPointsGained = 0
 
-    // 找到其他两个玩家，每人减10分
+    // 从其他玩家身上拿走分数
     form.value.players.forEach((player) => {
       if (player !== currentPlayer) {
         // 其他玩家各减10分，但不低于0
-        player.score = Math.max(0, player.score - 10)
+        const pointsToTake = Math.min(10, player.score)
+        player.score -= pointsToTake
+        totalPointsGained += pointsToTake
       }
     })
+
+    // 当前玩家加上从其他玩家拿走的分数
+    currentPlayer.score += totalPointsGained
+
+    // 记录大金次数
+    currentPlayer.dajin++
 
     // 大金不调整顺序
   }
@@ -636,10 +644,12 @@ const handleHuangjin9 = (index: number) => {
     const opponentIndex = getOpponentIndex(index)
     const opponent = form.value.players[opponentIndex]
 
-    // 当前玩家加8分
-    currentPlayer.score += 8
     // 对手减4分，但不低于0
-    opponent.score = Math.max(0, opponent.score - 4)
+    const pointsToTake = Math.min(4, opponent.score)
+    opponent.score -= pointsToTake
+
+    // 当前玩家加上从对手拿走的分数
+    currentPlayer.score += pointsToTake
 
     // 记录黄金9次数
     currentPlayer.huangjin9++
@@ -649,17 +659,23 @@ const handleHuangjin9 = (index: number) => {
     opponent.order = 2
   } else {
     // 多人模式新规则
-    // 当前玩家加8分并记录黄金9次数
-    currentPlayer.score += 8
-    currentPlayer.huangjin9++
+    let totalPointsGained = 0
 
-    // 找到其他两个玩家，每人减4分
+    // 从其他玩家身上拿走分数
     form.value.players.forEach((player) => {
       if (player !== currentPlayer) {
         // 其他玩家各减4分，但不低于0
-        player.score = Math.max(0, player.score - 4)
+        const pointsToTake = Math.min(4, player.score)
+        player.score -= pointsToTake
+        totalPointsGained += pointsToTake
       }
     })
+
+    // 当前玩家加上从其他玩家拿走的分数
+    currentPlayer.score += totalPointsGained
+
+    // 记录黄金9次数
+    currentPlayer.huangjin9++
 
     // 黄金9不调整顺序
   }
