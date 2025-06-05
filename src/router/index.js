@@ -242,7 +242,7 @@ export const asyncRoutes = [
         ],
       },
       {
-        path: 'functionAll',
+        path: '/functionAll',
         name: 'functionAll',
         meta: {
           title: '功能合集',
