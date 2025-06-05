@@ -666,7 +666,7 @@ const getPlayerColor = (index: number) => {
 
 <template>
   <div>
-    <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+    <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="九球" name="first">
         <el-form inline v-if="isEdit">
           <el-form-item label="初始分数" prop="initialScore">
@@ -902,7 +902,7 @@ const getPlayerColor = (index: number) => {
     background-color: #eee;
 
     .score-button {
-      width: 49%;
+      width: 32%;
       height: 120px;
       margin: 4px 0;
       text-align: center;
@@ -910,9 +910,10 @@ const getPlayerColor = (index: number) => {
       cursor: pointer;
       background-color: #ffffff;
       border-radius: 6px;
-      font-size: 36px;
+      font-size: 42px;
       font-weight: 600;
       color: #495057;
+      white-space: wrap;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       transition: all 0.2s ease;
       border: 1px solid #e9ecef;
