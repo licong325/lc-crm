@@ -723,16 +723,22 @@ const getPlayerColor = (index: number) => {
                 </div>
                 <div class="player-card-button">
                   <div class="score-button" @click="handlePusheng(form.players.indexOf(player))">
-                    +普胜(总数：{{ player.pusheng }})
+                    +普胜({{ player.pusheng }})
                   </div>
                   <div class="score-button" @click="handleXiaojin(form.players.indexOf(player))">
-                    +小金(总数：{{ player.xiaojin }})
+                    +小金({{ player.xiaojin }})
                   </div>
                   <div
                     class="score-button"
                     :class="{ disabled: player.order !== 1 }"
                     @click="handleDajin(form.players.indexOf(player))">
-                    +大金(总数：{{ player.dajin }})
+                    +大金({{ player.dajin }})
+                  </div>
+                  <div
+                    class="score-button"
+                    :class="{ disabled: player.order !== 1 }"
+                    @click="handleHuangjin9(form.players.indexOf(player))">
+                    +黄金9({{ player.huangjin9 }})
                   </div>
                   <div class="score-button" @click="handleAdd1(form.players.indexOf(player))">
                     加1
@@ -742,12 +748,6 @@ const getPlayerColor = (index: number) => {
                     class="score-button"
                     @click="handlePassCue(form.players.indexOf(player))">
                     让杆加1
-                  </div>
-                  <div
-                    class="score-button"
-                    :class="{ disabled: player.order !== 1 }"
-                    @click="handleHuangjin9(form.players.indexOf(player))">
-                    +黄金9(总数：{{ player.huangjin9 }})
                   </div>
                 </div>
               </div>
@@ -863,7 +863,7 @@ const getPlayerColor = (index: number) => {
 
   .scoring-box {
     width: 100%;
-    height: 380px;
+    height: 370px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -883,8 +883,9 @@ const getPlayerColor = (index: number) => {
       border: 1px solid #f1f3f5;
 
       span {
-        color: #495057;
-        font-size: 320px;
+        color: var(--player-text, #4263eb);
+        opacity: 0.85;
+        font-size: 300px;
         font-weight: 500;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       }
@@ -901,7 +902,7 @@ const getPlayerColor = (index: number) => {
     background-color: #eee;
 
     .score-button {
-      width: 32%;
+      width: 49%;
       height: 120px;
       margin: 4px 0;
       text-align: center;
@@ -909,7 +910,7 @@ const getPlayerColor = (index: number) => {
       cursor: pointer;
       background-color: #ffffff;
       border-radius: 6px;
-      font-size: 32px;
+      font-size: 36px;
       font-weight: 600;
       color: #495057;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
