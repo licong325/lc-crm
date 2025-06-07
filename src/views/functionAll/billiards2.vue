@@ -1020,8 +1020,13 @@ const fullResetMultiPlayer = () => {
                   '--player-background': getPlayerColor(form.players.indexOf(player)).background,
                   '--player-text': getPlayerColor(form.players.indexOf(player)).text,
                 }">
-                <div class="player-card-name">{{ player.name }}</div>
-                <div class="player-card-score">顺序：{{ player.order }}</div>
+                <div class="player-card-name">{{ player.name }}({{ player.order }})</div>
+                <div class="player-card-score">
+                  <span>普胜:{{ player.pusheng }}</span>
+                  <span>小金:{{ player.xiaojin }}</span>
+                  <span>大金:{{ player.dajin }}</span>
+                  <span>黄金9:{{ player.huangjin9 }}</span>
+                </div>
                 <div class="scoring-box">
                   <div
                     class="scoring-box-item"
@@ -1032,22 +1037,22 @@ const fullResetMultiPlayer = () => {
                 </div>
                 <div class="player-card-button">
                   <div class="score-button" @click="handlePusheng(form.players.indexOf(player))">
-                    +普胜({{ player.pusheng }})
+                    普胜
                   </div>
                   <div class="score-button" @click="handleXiaojin(form.players.indexOf(player))">
-                    +小金({{ player.xiaojin }})
+                    小金
                   </div>
                   <div
                     class="score-button"
                     :class="{ disabled: player.order !== 1 }"
                     @click="handleDajin(form.players.indexOf(player))">
-                    +大金({{ player.dajin }})
+                    大金
                   </div>
                   <div
                     class="score-button"
                     :class="{ disabled: player.order !== 1 }"
                     @click="handleHuangjin9(form.players.indexOf(player))">
-                    +黄金9({{ player.huangjin9 }})
+                    黄金9
                   </div>
                   <div class="score-button" @click="handleAdd1(form.players.indexOf(player))">
                     加1
@@ -1345,13 +1350,18 @@ const fullResetMultiPlayer = () => {
 
   .player-card-score {
     width: 100%;
-    height: 40px;
-    text-align: center;
-    line-height: 40px;
-    background-color: var(--player-secondary, #bac8ff);
+    height: 60px;
+    // background-color: var(--player-secondary, #bac8ff);
+    background-color: #efefef;
     color: var(--player-text, #4263eb);
-    font-size: 28px;
-    opacity: 0.85;
+    // color: #000;
+    font-size: 30px;
+    font-weight: 600;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 6px;
   }
 
   .scoring-box {
@@ -1376,6 +1386,8 @@ const fullResetMultiPlayer = () => {
       border: 1px solid #f1f3f5;
 
       span {
+        height: 100%;
+        line-height: 100%;
         color: var(--player-text, #4263eb);
         opacity: 0.85;
         font-size: 300px;
