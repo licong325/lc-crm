@@ -1,129 +1,128 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { UserRoleEnum, getRoleLabel, getRoleOptions } from '@/utils/roleEnum.js'
+import { getUserList, addUser, deleteUser } from '@/api/user'
 
 const activeKey = ref('first')
 const searchUserForm = ref({
   userName: '',
+  role: UserRoleEnum.SUPER_ADMIN.value,
 })
-const userDataList = ref([
-  {
-    id: 1,
-    userName: '231231',
-    identity: UserRoleEnum.TOTAL_ADMIN.value,
-    time: 1232131,
-  },
+const roleMap = new Map([
+  ['first', UserRoleEnum.SUPER_ADMIN.value],
+  ['second', UserRoleEnum.ADMIN.value],
+  ['third', UserRoleEnum.OPERATOR.value],
 ])
+const currentPage = ref(1)
+const pageSize = 5
+const userDataList = ref([])
+let total = ref(0)
 const dialogVisible = ref(false)
-const dialogTitle = ref('添加用户')
-const formRef = ref(null)
-const formData = ref({
-  userName: '',
+const addUserForm = ref({
+  username: '',
   password: '',
-  identity: '',
+  role: UserRoleEnum.SUPER_ADMIN.value,
 })
-
-// 表单校验规则
-const rules = {
-  userName: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+const roleOptions = getRoleOptions()
+const addUserFormRef = ref(null)
+const addUserRules = {
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  identity: [{ required: true, message: '请选择用户身份', trigger: 'change' }],
+  role: [{ required: true, message: '请选择用户身份', trigger: 'blur' }],
+}
+//#region  方法
+
+const handleSearch = () => {
+  currentPage.value = 1
+  _getUserList()
+}
+
+const _getUserList = () => {
+  const data = {
+    username: searchUserForm.value.userName,
+    role: searchUserForm.value.role,
+    page: currentPage.value,
+    pageSize,
+  }
+  getUserList(data)
+    .then((res: any) => {
+      console.log(res)
+      userDataList.value = res.list || []
+      total.value = res.pagination.total || 0
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+}
+
+const handleAddUser = () => {
+  console.log('添加用户')
+  addUserForm.value = {
+    username: '',
+    password: '',
+    role: UserRoleEnum.SUPER_ADMIN.value,
+  }
+  dialogVisible.value = true
 }
 
 const handleTabClick = (tab) => {
-  switch (activeKey.value) {
-    case 'first':
-      // 调获取总管理数据的函数
-      getTotalAdminData()
-      break
-    case 'second':
-      // 调获取超级管理员数据的函数
-      getSuperAdminData()
-      break
-    case 'third':
-      // 调获取管理员数据的函数
-      getAdminData()
-      break
-  }
+  activeKey.value = tab
+  searchUserForm.value.role = roleMap.get(tab)
+  currentPage.value = 1
+  _getUserList()
 }
-const getTotalAdminData = () => {
-  console.log('获取总管理数据')
-  userDataList.value = [
-    {
-      id: 1,
-      userName: '231231',
-      identity: UserRoleEnum.TOTAL_ADMIN.value,
-      time: 1232131,
-    },
-  ]
+
+const handleCurrentChange = (page) => {
+  console.log('page', page)
+  currentPage.value = page
+  _getUserList()
 }
-const getSuperAdminData = () => {
-  console.log('获取超级管理员数据')
-  userDataList.value = [
-    {
-      id: 1,
-      userName: '231231',
-      identity: UserRoleEnum.SUPER_ADMIN.value,
-      time: 1232131,
-      operator: '231231',
-    },
-  ]
-}
-const getAdminData = () => {
-  console.log('获取管理员数据')
-  userDataList.value = [
-    {
-      id: 1,
-      userName: '231231',
-      identity: UserRoleEnum.ADMIN.value,
-      time: 1232131,
-      operator: '231231',
-    },
-  ]
-}
-// 编辑用户
-const handleEdit = (row) => {
-  dialogTitle.value = '修改用户'
-  formData.value = {
-    ...row,
-    password: '', // 编辑时密码为空
-  }
-  dialogVisible.value = true
-}
-// 删除用户
-const handleDelete = (row) => {
-  console.log(row)
-}
-// 查询用户
-const handleSearch = () => {
-  console.log('查询')
-}
-// 打开添加用户弹窗
-const handleAddUser = () => {
-  dialogTitle.value = '添加用户'
-  formData.value = {
-    userName: '',
-    password: '',
-    identity: '',
-  }
-  dialogVisible.value = true
-}
-// 提交表单
-const handleSubmit = async () => {
-  if (!formRef.value) return
-  await formRef.value.validate((valid) => {
-    if (valid) {
-      console.log('提交表单', formData.value)
-      dialogVisible.value = false
-      // 这里调用接口保存数据
+
+const addUserConfirm = () => {
+  addUserFormRef.value.validate((valid) => {
+    if (!valid) {
+      return
     }
+    console.log('添加用户')
+    const data = {
+      username: addUserForm.value.username,
+      password: addUserForm.value.password,
+      role: addUserForm.value.role,
+    }
+    addUser(data)
+      .then((res) => {
+        console.log(res)
+        dialogVisible.value = false
+        handleSearch()
+      })
+      .catch((err) => {
+        console.error(err)
+      })
   })
 }
-// 取消
-const handleCancel = () => {
-  dialogVisible.value = false
-  formRef.value?.resetFields()
+
+const handleDeleteUser = (id) => {
+  console.log('删除用户', id)
+  ElMessageBox.confirm('确定删除该用户吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    deleteUser(id)
+      .then((res) => {
+        console.log(res)
+        handleSearch()
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  })
 }
+
+onMounted(() => {
+  handleSearch()
+})
+//#endregion
 </script>
 
 <template>
@@ -139,88 +138,74 @@ const handleCancel = () => {
         <el-button type="primary" @click="handleAddUser">添加用户</el-button>
       </el-form-item>
     </el-form>
-    <el-tabs v-model="activeKey" @tab-click="handleTabClick">
-      <el-tab-pane name="first" label="总管理">
+    <el-tabs v-model="activeKey" @tab-change="handleTabClick">
+      <el-tab-pane name="first" label="超级管理员">
         <el-table :data="userDataList" border>
           <el-table-column label="id" prop="id" width="100"></el-table-column>
-          <el-table-column label="name" prop="userName"> </el-table-column>
-          <el-table-column label="用户身份" prop="identity">
-            <template #default="{ row }">
-              {{ getRoleLabel(row.identity) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="创建时间" prop="time"> </el-table-column>
-        </el-table>
-      </el-tab-pane>
-      <el-tab-pane name="second" label="超级管理员">
-        <el-table :data="userDataList" border>
-          <el-table-column label="id" prop="id" width="100"></el-table-column>
-          <el-table-column label="name" prop="userName"> </el-table-column>
-          <el-table-column label="用户身份" prop="identity">
-            <template #default="{ row }">
-              {{ getRoleLabel(row.identity) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="权限编辑"> </el-table-column>
-          <el-table-column label="添加时间" prop="time"> </el-table-column>
-          <el-table-column label="操作用户" prop="operator"> </el-table-column>
-          <el-table-column label="操作" width="100" fixed="right">
+          <el-table-column label="name" prop="username"> </el-table-column>
+          <el-table-column label="用户身份" prop="remark"> </el-table-column>
+          <el-table-column label="创建时间" prop="createTime"> </el-table-column>
+          <el-table-column label="操作" width="100">
             <template #default="scope">
-              <el-button type="warning" @click="handleEdit(scope.row)">编辑</el-button>
-              <el-button type="danger" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" @click="handleDeleteUser(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-tab-pane>
-      <el-tab-pane name="third" label="管理员">
+      <el-tab-pane name="second" label="管理员">
         <el-table :data="userDataList" border>
           <el-table-column label="id" prop="id" width="100"></el-table-column>
-          <el-table-column label="name" prop="userName"> </el-table-column>
-          <el-table-column label="用户身份" prop="identity">
-            <template #default="{ row }">
-              {{ getRoleLabel(row.identity) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="权限编辑"> </el-table-column>
-          <el-table-column label="添加时间" prop="time"> </el-table-column>
-          <el-table-column label="操作用户" prop="operator"> </el-table-column>
-          <el-table-column label="操作" width="100" fixed="right">
+          <el-table-column label="name" prop="username"> </el-table-column>
+          <el-table-column label="用户身份" prop="remark"> </el-table-column>
+          <el-table-column label="添加时间" prop="createTime"> </el-table-column>
+          <el-table-column label="操作" width="100">
             <template #default="scope">
-              <el-button type="warning" @click="handleEdit(scope.row)">编辑</el-button>
-              <el-button type="danger" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button type="danger" @click="handleDeleteUser(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-tab-pane>
+      <el-tab-pane name="third" label="运营">
+        <el-table :data="userDataList" border>
+          <el-table-column label="id" prop="id" width="100"></el-table-column>
+          <el-table-column label="name" prop="username"> </el-table-column>
+          <el-table-column label="用户身份" prop="remark"> </el-table-column>
+          <el-table-column label="添加时间" prop="createTime"> </el-table-column>
+          <el-table-column label="操作" width="100">
+            <template #default="scope">
+              <el-button type="danger" @click="handleDeleteUser(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :total="total"
+        layout="total, prev, pager, next"
+        @current-change="handleCurrentChange" />
     </el-tabs>
-
-    <!-- 添加/编辑用户弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px">
-      <el-form ref="formRef" :model="formData" :rules="rules" label-width="80px" status-icon>
-        <el-form-item label="用户名" prop="userName">
-          <el-input v-model="formData.userName" placeholder="请输入用户名" />
+    <el-dialog v-model="dialogVisible" title="添加用户" width="30%">
+      <el-form :model="addUserForm" label-width="120px" :rules="addUserRules" ref="addUserFormRef">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="addUserForm.username" />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input
-            v-model="formData.password"
-            type="password"
-            placeholder="请输入密码"
-            show-password />
+          <el-input v-model="addUserForm.password" />
         </el-form-item>
-        <el-form-item label="用户身份" prop="identity">
-          <el-select v-model="formData.identity" placeholder="请选择用户身份" style="width: 100%">
+        <el-form-item label="用户身份" prop="role">
+          <el-select v-model="addUserForm.role" placeholder="请选择用户身份">
             <el-option
-              v-for="item in getRoleOptions()"
+              v-for="item in roleOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value" />
           </el-select>
         </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="addUserConfirm">确认</el-button>
+        </el-form-item>
       </el-form>
-      <template #footer>
-        <el-button @click="handleCancel">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
-      </template>
     </el-dialog>
   </div>
 </template>

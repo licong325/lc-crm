@@ -9,10 +9,10 @@ const getBaseUrl = () => {
 
   // 本地开发环境
   if (env === 'development' || import.meta.env.DEV) {
-    return 'http://localhost:3001'
+    return 'http://localhost:3000'
   }
   // return 'https://lc-serve.vercel.app'
-  return 'https://lc-serve.greatli.cn'
+  return 'https://www.lc-serve.greatli.cn'
 }
 
 // 创建 axios 实例
@@ -46,7 +46,7 @@ service.interceptors.response.use(
     const { code, data, message } = response.data
 
     // 根据自定义错误码判断请求是否成功
-    if (code === 200) {
+    if (code === 200 || code === 201 || code === 204) {
       // 将组件中处理的数据返回
       return data
     }

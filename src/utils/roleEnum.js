@@ -2,20 +2,20 @@
  * 用户身份角色枚举
  */
 export const UserRoleEnum = {
-  TOTAL_ADMIN: {
-    value: 1,
-    label: '总管理',
-    key: 'TOTAL_ADMIN',
-  },
   SUPER_ADMIN: {
-    value: 2,
+    value: 1,
     label: '超级管理员',
     key: 'SUPER_ADMIN',
   },
   ADMIN: {
-    value: 3,
+    value: 2,
     label: '管理员',
     key: 'ADMIN',
+  },
+  OPERATOR: {
+    value: 3,
+    label: '运营',
+    key: 'OPERATOR',
   },
 }
 
