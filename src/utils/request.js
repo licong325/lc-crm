@@ -48,6 +48,7 @@ service.interceptors.response.use(
     // 根据自定义错误码判断请求是否成功
     if (code === 200 || code === 201 || code === 204) {
       // 将组件中处理的数据返回
+      ElMessage.success(message || '操作成功')
       return data
     }
 
