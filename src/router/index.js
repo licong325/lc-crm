@@ -265,6 +265,14 @@ export const asyncRoutes = [
               title: '台球2',
             },
           },
+          {
+            path: 'screenshot',
+            name: 'screenshot',
+            component: () => import('@/views/functionAll/screenshot.vue'),
+            meta: {
+              title: '页面截图',
+            },
+          },
         ],
       },
     ],

@@ -63,7 +63,7 @@ const closeTerminal = () => {
     }
     45%,
     55% {
-      width: 330px;
+      width: 480px;
     } /* adjust width based on content */
     90%,
     100% {
@@ -146,7 +146,7 @@ const closeTerminal = () => {
     overflow: hidden;
     border-right: 6px solid green; /* Cursor */
     animation:
-      typeAndDelete 4s steps(19) infinite,
+      typeAndDelete 5s steps(26) infinite,
       blinkCursor 0.5s step-end infinite alternate;
     margin-top: 80px;
   }

@@ -67,24 +67,24 @@ service.interceptors.response.use(
         message = error.response.data.message || '请求错误'
         break
       case 401:
-        message = '未登录'
+        message = error.response.data.message || '未登录'
         // 这里可以处理未登录或token过期的情况
         const userStore = useUserStore()
         userStore.logout()
         router.push('/login')
         break
       case 403:
-        message = '没有权限'
+        message = error.response.data.message || '没有权限'
         router.push('/403')
         break
       case 404:
-        message = '请求地址错误'
+        message = error.response.data.message || '请求地址错误'
         break
       case 500:
-        message = '服务器故障'
+        message = error.response.data.message || '服务器故障'
         break
       default:
-        message = '网络连接故障'
+        message = error.response.data.message || '网络连接故障'
     }
 
     ElMessage.error(message)
