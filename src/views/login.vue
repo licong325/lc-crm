@@ -8,8 +8,8 @@ const t = useGlobalT()
 const router = useRouter()
 const userStore = useUserStore()
 const loginForm = reactive({
-  username: '',
-  password: '',
+  username: 'licong',
+  password: 'licong',
   captcha: '',
 })
 const loginRules = reactive({
@@ -51,6 +51,8 @@ const handleLogin = async () => {
         console.log('res', res)
         // 存储token
         userStore.setToken(res.token)
+        userStore.setUserInfo(res.user)
+        userStore.setRoutes(res.routerList)
         ElMessage.success(t('common.loginSuccess'))
         router.push('/home')
       })

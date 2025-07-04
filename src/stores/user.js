@@ -1,38 +1,45 @@
 import { defineStore } from 'pinia'
 
-export const useUserStore = defineStore('user', () => {
-  const token = ref(localStorage.getItem('token') || '')
-  const userInfo = ref({
-    username: localStorage.getItem('username') || '',
-    avatar:
-      'https://upload.jianshu.io/users/upload_avatars/2245742/a259daa9-74ba-4361-b441-f4591438c131.jpg?imageMogr2/auto-orient/strip|imageView2/1/w/80/h/80/format/webp',
-  })
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    token: localStorage.getItem('token') || '',
+    userInfo: JSON.parse(localStorage.getItem('userInfo')) || {},
+    permissionsRoutes: JSON.parse(localStorage.getItem('permissionsRoutes')) || [], // 用户权限路由列表
+    menuRoutes: JSON.parse(localStorage.getItem('menuRoutes')) || [], // 新增：菜单显示用的路由
+  }),
 
-  // 退出登录
-  const logout = () => {
-    token.value = ''
-    userInfo.value = { username: '', avatar: '' }
-    localStorage.removeItem('token')
-    localStorage.removeItem('username')
-  }
+  actions: {
+    setToken(token) {
+      this.token = token
+      localStorage.setItem('token', token)
+    },
 
-  // 设置token
-  const setToken = (val) => {
-    token.value = val
-    localStorage.setItem('token', val)
-  }
+    setUserInfo(userInfo) {
+      this.userInfo = userInfo
+      localStorage.setItem('userInfo', JSON.stringify(userInfo))
+    },
 
-  // 设置用户信息
-  const setUserInfo = (info) => {
-    userInfo.value = info
-    localStorage.setItem('username', info.username)
-  }
+    setRoutes(routes) {
+      this.permissionsRoutes = routes
+      localStorage.setItem('permissionsRoutes', JSON.stringify(routes))
+      this.setMenuRoutes(routes)
+    },
 
-  return {
-    token,
-    userInfo,
-    logout,
-    setToken,
-    setUserInfo,
-  }
+    // 新增：设置菜单路由方法
+    setMenuRoutes(routes) {
+      this.menuRoutes = routes
+      localStorage.setItem('menuRoutes', JSON.stringify(routes))
+    },
+
+    logout() {
+      this.token = ''
+      this.userInfo = {}
+      this.permissionsRoutes = []
+      this.menuRoutes = []
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      localStorage.removeItem('permissionsRoutes')
+      localStorage.removeItem('menuRoutes')
+    },
+  },
 })
