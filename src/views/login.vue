@@ -21,6 +21,39 @@ const loginFormRef = ref(null)
 const loading = ref(false)
 const captchaId = ref('')
 const captchaImage = ref('')
+
+// 定义全部路由权限数组
+const allRouteNames = [
+  'home',
+  'manage',
+  'adminUsers',
+  'permissions',
+  'official',
+  'officialLinks',
+  'linkConfig',
+  'blacklist',
+  'blacklistUsers',
+  'blacklistChatrooms',
+  'disableBroadcast',
+  'blacklistRecords',
+  'posts',
+  'userPosts',
+  'deleteRecords',
+  'rewards',
+  'giveRewards',
+  'rewardRecords',
+  'rewardConfig',
+  'userInfo',
+  'userQuery',
+  'modifyRecords',
+  'ranking',
+  'rankingClickableUID',
+  'functionAll',
+  'billiards',
+  'billiards2',
+  'screenshot',
+]
+
 const _getCaptcha = async () => {
   getCaptcha().then((res) => {
     console.log('res', res)
@@ -52,7 +85,8 @@ const handleLogin = async () => {
         // 存储token
         userStore.setToken(res.token)
         userStore.setUserInfo(res.user)
-        userStore.setRoutes(res.routerList)
+        // 使用全部权限数组，而不是接口返回的权限
+        userStore.setRoutes(allRouteNames)
         ElMessage.success(t('common.loginSuccess'))
         router.push('/home')
       })
@@ -61,6 +95,7 @@ const handleLogin = async () => {
     }
   })
 }
+
 const restLogin = async () => {
   console.log('restLogin')
 
@@ -84,7 +119,18 @@ const restLogin = async () => {
     }, 1000)
   }).then(() => {
     loading.value = false
+    // 存储token
     userStore.setToken('kjcnjkcznzkfhineeiuhnmx')
+    // 设置默认用户信息
+    userStore.setUserInfo({
+      username: 'admin',
+      nickname: '超级管理员',
+      avatar: '',
+      roles: ['admin'],
+    })
+    // 同样使用全部权限数组
+    userStore.setRoutes(allRouteNames)
+
     ElMessage.success('登录成功')
     router.push('/home')
   })
