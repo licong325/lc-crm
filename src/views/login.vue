@@ -52,6 +52,7 @@ const allRouteNames = [
   'billiards',
   'billiards2',
   'screenshot',
+  'pinyinAnnotation',
 ]
 
 const _getCaptcha = async () => {

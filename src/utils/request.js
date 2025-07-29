@@ -10,6 +10,7 @@ const getBaseUrl = () => {
   // 本地开发环境
   if (env === 'development' || import.meta.env.DEV) {
     return 'http://localhost:3000'
+    // return 'https://www.lc-serve.greatli.cn'
   }
   // return 'https://lc-serve.vercel.app'
   return 'https://www.lc-serve.greatli.cn'

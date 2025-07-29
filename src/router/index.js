@@ -273,6 +273,14 @@ export const asyncRoutes = [
               title: '页面截图',
             },
           },
+          {
+            path: 'pinyinAnnotation',
+            name: 'pinyinAnnotation',
+            component: () => import('@/views/functionAll/pinyinAnnotation.vue'),
+            meta: {
+              title: '拼音标注',
+            },
+          },
         ],
       },
     ],
